@@ -65,6 +65,7 @@ bash gen-root.bash
 
 ## Documentation
 
+- **[WORKFLOW.md](WORKFLOW.md)** — ⭐ **Complete development workflow** (start here after setup)
 - **[REFERENCE.md](REFERENCE.md)** — Technical reference for all definitions and theorems
 - **[AIDER-AI-GUIDE.md](AIDER-AI-GUIDE.md)** — Documentation standards and AI assistant guide
 - **[CHANGELOG.md](CHANGELOG.md)** — Change history
