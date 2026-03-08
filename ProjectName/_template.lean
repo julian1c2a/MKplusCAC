@@ -11,6 +11,12 @@ License: MIT
 import ProjectName.Prelim
 -- import ProjectName.OtherModule
 
+-- Available from Prelim (no re-import needed):
+--   ExistsUnique, ∃! x, p, ∃¹ x, p
+--   ExistsUnique.intro / .exists / .choose / .choose_spec / .unique
+--   choose_unique / choose_spec_unique / choose_uniq  (Peano-compatible)
+--   Classical.*   (via open Classical in Prelim)
+
 namespace ProjectName.ModuleName
 
 -- ============================================================

@@ -12,7 +12,7 @@
 
 | Module | Namespace | Dependencies | Status |
 |--------|-----------|--------------|--------|
-| `Prelim.lean` | `ProjectName.Prelim` | — | 🔄 In progress |
+| `Prelim.lean` | top-level | `Init.Classical` | ✅ Completo |
 
 *Status codes*: ✅ Completo · 🔶 Parcial · 🔄 En progreso · ❌ Pendiente
 
@@ -22,7 +22,7 @@
 
 ```mermaid
 graph TD
-    P[Prelim.lean]
+    IC[Init.Classical] --> P[Prelim.lean]
 ```
 
 *(Update this diagram as modules are added)*
@@ -33,12 +33,64 @@ graph TD
 
 ### 3.1 Prelim.lean
 
-**Namespace**: `ProjectName.Prelim`
-**Dependencies**: none
+**Namespace**: top-level (no namespace wrapper)
+**Dependencies**: `Init.Classical`
 **Last updated**: 2025-01-01 00:00
-**Status**: 🔄 In progress
+**Status**: ✅ Completo
 
-Preliminary definitions, notations, and helper infrastructure used by all other modules.
+Foundational infrastructure used by all modules: custom `ExistsUnique` with full API,
+both `∃!` and `∃¹` notations, dot-notation style and Peano-compatible aliases.
+
+#### ExistsUnique
+
+**Mathematical statement**: p has a unique witness iff ∃ x, p x ∧ ∀ y, p y → y = x
+
+**Lean 4 signature**:
+```lean
+def ExistsUnique {α : Sort u} (p : α → Prop) : Prop :=
+  ∃ x, p x ∧ ∀ y, p y → y = x
+```
+
+**Computability**: noncomputable (witness extraction uses `Classical.choose`)
+**Dependencies**: `Init.Classical`
+
+**Full API**:
+
+| Name (dot-notation) | Peano alias | Description |
+|---------------------|-------------|-------------|
+| `ExistsUnique.intro w hw h` | — | constructor |
+| `ExistsUnique.exists h` | `ExistsUnique.exists h` | extracts `∃ x, p x` |
+| `ExistsUnique.choose h` | `choose_unique h` | noncomputable witness |
+| `ExistsUnique.choose_spec h` | `choose_spec_unique h` | witness satisfies p |
+| `ExistsUnique.unique h y hy` | `choose_uniq h hy` | uniqueness: `y = witness` |
+
+**Lean 4 signatures**:
+```lean
+theorem ExistsUnique.intro {α : Sort u} {p : α → Prop} (w : α)
+    (hw : p w) (h : ∀ y, p y → y = w) : ExistsUnique p
+
+theorem ExistsUnique.exists {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : ∃ x, p x
+
+noncomputable def ExistsUnique.choose {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : α
+
+theorem ExistsUnique.choose_spec {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : p (h.choose)
+
+theorem ExistsUnique.unique {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : ∀ y, p y → y = h.choose
+
+-- Peano-compatible aliases:
+noncomputable def choose_unique {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : α
+
+theorem choose_spec_unique {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) : p (choose_unique h)
+
+theorem choose_uniq {α : Sort u} {p : α → Prop}
+    (h : ExistsUnique p) {y : α} (hy : p y) : y = choose_unique h
+```
 
 ---
 
@@ -46,15 +98,18 @@ Preliminary definitions, notations, and helper infrastructure used by all other 
 
 ### 4.1 Prelim.lean
 
-*(No theorems yet)*
+*(See ExistsUnique API table in §3.1 — all theorems listed there)*
 
 ---
 
 ## 5. Notations
 
-| Symbol | Definition | Module | Priority |
-|--------|-----------|--------|----------|
-| *(none yet)* | | | |
+| Symbol | Expands to | Module | Variants |
+|--------|-----------|--------|---------|
+| `∃! x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` | untyped only |
+| `∃¹ x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` | `∃¹ x`, `∃¹ (x)`, `∃¹ (x : T)`, `∃¹ x : T` |
+
+**Note**: `∃!` overrides Lean's built-in notation. Use `∃¹` to avoid any macro conflicts.
 
 ---
 
@@ -62,10 +117,27 @@ Preliminary definitions, notations, and helper infrastructure used by all other 
 
 ### 6.1 Prelim.lean
 
+All names are top-level (no namespace), accessible wherever `Prelim.lean` is imported:
+
 ```lean
-export ProjectName.Prelim (
-  -- exported names here
-)
+-- Definitions
+ExistsUnique                -- Prop-valued predicate
+
+-- Notation
+∃! x, p                    -- unique existence (overrides built-in)
+∃¹ x, p                    -- unique existence (safe, 4 variants)
+
+-- Dot-notation API
+ExistsUnique.intro
+ExistsUnique.exists
+ExistsUnique.choose         -- noncomputable
+ExistsUnique.choose_spec
+ExistsUnique.unique
+
+-- Peano-compatible aliases
+choose_unique               -- noncomputable
+choose_spec_unique
+choose_uniq
 ```
 
 ---
@@ -74,11 +146,11 @@ export ProjectName.Prelim (
 
 ### 7.1 Fully Projected Files
 
-*(None yet)*
+- `Prelim.lean` — ExistsUnique complete (1 def + 5 theorems/defs + 3 aliases + 2 notations)
 
 ### 7.2 Partially Projected Files
 
-- `Prelim.lean` — in progress
+*(None)*
 
 ### 7.3 Notes
 
