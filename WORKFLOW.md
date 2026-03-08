@@ -40,6 +40,17 @@ This installs the pre-commit hook that:
 
 > **Note**: Run this once per machine/clone. The hook lives in `.git/hooks/` which is not versioned.
 
+> **Do NOT run `git init` or `lake init`.**
+> - `git init` is already done by `git clone` — running it again would reinitialize the repo and break the commit history.
+> - `lake init` would overwrite `lakefile.lean` with a bare default, losing the template configuration (`autoImplicit=false`, `globs`, commented dependencies).
+>
+> If you activate a dependency in `lakefile.lean`, run `lake update` (not `lake init`) to fetch it:
+> ```bash
+> # After uncommenting a require block in lakefile.lean:
+> lake update   # downloads and registers the external package
+> lake build    # verify it compiles
+> ```
+
 ### Step 4 — Create the GitHub repository and push
 
 ```bash
