@@ -1,6 +1,6 @@
 # Development Workflow
 
-**Author**: Your Name
+**Author**: Julián Calderón Almendros
 *Last updated: 2025-01-01*
 
 Complete guide for using this template — from initial setup to active development.
@@ -12,7 +12,7 @@ Complete guide for using this template — from initial setup to active developm
 ### Step 1 — Clone the template
 
 ```bash
-git clone https://github.com/your-username/lean4-project-template MyProject
+git clone https://github.com/julian1c2a/lean4-project-template MyProject
 cd MyProject
 ```
 
@@ -23,8 +23,8 @@ bash setup.bash MyProject "Your Full Name" your-github-username
 ```
 
 This single command:
-- Renames `ProjectName/` → `MyProject/` and `ProjectName.lean` → `MyProject.lean`
-- Replaces all occurrences of `ProjectName`, `Your Name`, `your-username` in every file
+- Renames `MKplus/` → `MyProject/` and `MKplus.lean` → `MyProject.lean`
+- Replaces all occurrences of `MKplus`, `Julián Calderón Almendros`, `julian1c2a` in every file
 - Updates copyright year to the current year
 - Commits the result
 
@@ -59,7 +59,7 @@ gh repo create MyProject --public --source=. --push
 
 # Option B: manually
 # Create repo on github.com, then:
-git remote add origin https://github.com/your-username/MyProject.git
+git remote add origin https://github.com/julian1c2a/MyProject.git
 git push -u origin master
 ```
 

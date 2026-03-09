@@ -5,9 +5,9 @@
 #   bash new-module.bash ModuleName
 #   bash new-module.bash Algebra/Ring
 #
-# Creates:  ProjectName/ModuleName.lean  (from _template.lean)
-# Updates:  ProjectName.lean             (adds import line)
-# Unlocks:  ProjectName.lean for editing (re-locks after update)
+# Creates:  MKplus/ModuleName.lean  (from _template.lean)
+# Updates:  MKplus.lean             (adds import line)
+# Unlocks:  MKplus.lean for editing (re-locks after update)
 
 set -e
 
@@ -27,9 +27,9 @@ if [ -z "$PROJECT_NAME" ]; then
 fi
 
 # Convert path argument to file path and import name
-# e.g. "Algebra/Ring" -> file: ProjectName/Algebra/Ring.lean
-#                      -> import: ProjectName.Algebra.Ring
-#                      -> namespace: ProjectName.Algebra.Ring
+# e.g. "Algebra/Ring" -> file: MKplus/Algebra/Ring.lean
+#                      -> import: MKplus.Algebra.Ring
+#                      -> namespace: MKplus.Algebra.Ring
 MODULE_PATH="${MODULE_ARG//./\/}"                        # dots to slashes
 TARGET_FILE="${PROJECT_NAME}/${MODULE_PATH}.lean"
 IMPORT_NAME="${PROJECT_NAME}.${MODULE_ARG//\//.}"        # slashes to dots
@@ -53,13 +53,13 @@ fi
 
 # Get current year for copyright
 YEAR=$(date +%Y)
-AUTHOR=$(git config user.name 2>/dev/null || echo "Your Name")
+AUTHOR=$(git config user.name 2>/dev/null || echo "Julián Calderón Almendros")
 
 sed \
     -e "s/Copyright (c) 2025/Copyright (c) ${YEAR}/" \
-    -e "s/Author: Your Name/Author: ${AUTHOR}/" \
-    -e "s/ProjectName\.ModuleName/${NAMESPACE_NAME}/g" \
-    -e "s/import ProjectName\.Prelim/import ${PROJECT_NAME}.Prelim/" \
+    -e "s/Author: Julián Calderón Almendros/Author: ${AUTHOR}/" \
+    -e "s/MKplus\.ModuleName/${NAMESPACE_NAME}/g" \
+    -e "s/import MKplus\.Prelim/import ${PROJECT_NAME}.Prelim/" \
     "$TEMPLATE" > "$TARGET_FILE"
 
 echo "✅ Created: $TARGET_FILE"

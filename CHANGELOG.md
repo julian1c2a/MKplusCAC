@@ -1,7 +1,7 @@
 # Changelog
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 
 All notable changes to this project will be documented in this file.
 
@@ -10,7 +10,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-### Added (2025-01-01 00:00)
+### Added (2026-03-09 00:00)
 
 - Initial project structure from lean4-project-template
 
@@ -32,5 +32,5 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Links
 
-- [Repository](https://github.com/your-username/ProjectName)
-- [Issues](https://github.com/your-username/ProjectName/issues)
+- [Repository](https://github.com/julian1c2a/MKplus)
+- [Issues](https://github.com/julian1c2a/MKplus/issues)

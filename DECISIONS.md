@@ -1,7 +1,7 @@
-# Design Decisions — ProjectName
+# Design Decisions — MKplus
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 
 Architectural Decision Records (ADR) for this project.
 Each entry records *what* was decided and *why*, for future reference.

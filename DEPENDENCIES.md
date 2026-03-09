@@ -1,15 +1,15 @@
-# Dependency Diagram — ProjectName
+# Dependency Diagram — MKplus
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 
 ## Project Structure
 
 ```
-ProjectName/
+MKplus/
 ├── Prelim.lean         # Preliminary definitions
 └── _template.lean      # Module template (not imported)
-ProjectName.lean        # Root module
+MKplus.lean        # Root module
 ```
 
 ## Dependency Graph
@@ -17,15 +17,15 @@ ProjectName.lean        # Root module
 ```mermaid
 graph TD
     P[Prelim.lean]
-    Z[ProjectName.lean] --> P
+    Z[MKplus.lean] --> P
 ```
 
 ## Namespace Hierarchy
 
-### 1. **ProjectName.Prelim**
+### 1. **MKplus.Prelim**
 
 ```lean
-namespace ProjectName.Prelim
+namespace MKplus.Prelim
   -- Preliminary definitions
 ```
 
@@ -37,14 +37,14 @@ namespace ProjectName.Prelim
 
 ### Level N: Root
 
-- `ProjectName.lean` — imports all modules
+- `MKplus.lean` — imports all modules
 
 ## Exports by Module
 
 ### Prelim.lean
 
 ```lean
-export ProjectName.Prelim (
+export MKplus.Prelim (
   -- exported names here
 )
 ```

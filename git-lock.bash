@@ -3,8 +3,8 @@
 # Prevents accidental edits to completed modules via git pre-commit hook.
 #
 # Usage:
-#   bash git-lock.bash lock   ProjectName/Module.lean   # lock file
-#   bash git-lock.bash unlock ProjectName/Module.lean   # unlock file
+#   bash git-lock.bash lock   MKplus/Module.lean   # lock file
+#   bash git-lock.bash unlock MKplus/Module.lean   # unlock file
 #   bash git-lock.bash list                             # show locked files
 #   bash git-lock.bash init                             # install git hook
 #

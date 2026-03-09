@@ -1,9 +1,9 @@
 import Lake
 open Lake DSL
 
--- Replace «ProjectName» with your project name (must match directory name)
+-- Replace «MKplus» with your project name (must match directory name)
 -- and update the package name accordingly
-package «ProjectName» where
+package «MKplus» where
   -- Disable auto-implicit to enforce explicit type annotations everywhere
   moreServerArgs := #["-DautoImplicit=false"]
 
@@ -26,8 +26,8 @@ package «ProjectName» where
 -- ─────────────────────────────────────────────────────────────────────────────
 
 @[default_target]
-lean_lib «ProjectName» where
-  -- globs := #[.submodules `ProjectName]
-  -- ↑ Uncomment to auto-discover all .lean files in ProjectName/
+lean_lib «MKplus» where
+  -- globs := #[.submodules `MKplus]
+  -- ↑ Uncomment to auto-discover all .lean files in MKplus/
   --   (Lake will compile them without listing in the root file)
-  --   Leave commented to use explicit imports in ProjectName.lean
+  --   Leave commented to use explicit imports in MKplus.lean

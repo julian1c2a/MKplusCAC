@@ -1,7 +1,7 @@
-# Current Project Status — ProjectName
+# Current Project Status — MKplus
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 
 ---
 
@@ -41,7 +41,7 @@
 ## Architecture
 
 ```
-ProjectName/
+MKplus/
 └── Prelim.lean
 ```
 
@@ -55,7 +55,7 @@ ProjectName/
 
 ---
 
-**Author**: Your Name
-*Last updated: 2025-01-01 00:00*
+**Author**: Julián Calderón Almendros
+*Last updated: 2026-03-09 00:00*
 
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)

@@ -1,7 +1,7 @@
-# Technical Reference — ProjectName
+# Technical Reference — MKplus
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 **Lean version**: v4.28.0
 
 ---
@@ -35,7 +35,7 @@ graph TD
 
 **Namespace**: top-level (no namespace wrapper)
 **Dependencies**: `Init.Classical`
-**Last updated**: 2025-01-01 00:00
+**Last updated**: 2026-03-09 00:00
 **Status**: ✅ Completo
 
 Foundational infrastructure used by all modules: custom `ExistsUnique` with full API,

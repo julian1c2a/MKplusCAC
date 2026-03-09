@@ -1,7 +1,7 @@
 # AI Assistant Guide — Documentation Standards
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-03-09 00:00
+**Author**: Julián Calderón Almendros
 
 This document establishes requirements and standards for technical documentation of this Lean 4 project.
 
@@ -83,8 +83,8 @@ Purpose: Track how outdated a file is relative to REFERENCE.md, even within a si
 
 ```lean
 /-
-Copyright (c) 2025. All rights reserved.
-Author: Your Name
+Copyright (c) 2026. All rights reserved.
+Author: Julián Calderón Almendros
 License: MIT
 -/
 ```
@@ -100,8 +100,8 @@ Placement: lines 1–5 of every `.lean` file, no exceptions (including the root 
 Tool: `git-lock.bash` in the project root.
 
 ```bash
-bash git-lock.bash lock   ProjectName/Module.lean   # lock
-bash git-lock.bash unlock ProjectName/Module.lean   # unlock
+bash git-lock.bash lock   MKplus/Module.lean   # lock
+bash git-lock.bash unlock MKplus/Module.lean   # unlock
 bash git-lock.bash list                             # show status
 bash git-lock.bash init                             # install git hook
 ```
