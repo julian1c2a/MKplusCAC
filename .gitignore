@@ -19,3 +19,4 @@ Thumbs.db
 
 # Lock file temp
 locked_files.txt.tmp
+LSP_*.log

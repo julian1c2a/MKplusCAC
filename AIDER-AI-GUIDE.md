@@ -129,6 +129,173 @@ Violation consequence: If more than one file is unlocked, lock all and restart w
 
 ---
 
+## Naming Conventions
+
+These rules apply to all `.lean` files in this project. Names are in **English**.
+The scheme follows Mathlib4 conventions, adapted for a two-sorted set theory.
+
+---
+
+### (NC-1) Modules (`.lean` files)
+
+`UpperCamelCase`. Named after mathematical content, not technical role.
+
+| Pattern | Example |
+|---------|---------|
+| `UpperCamelCase.lean` | `Prelim.lean`, `MKplusAxioms.lean`, `Ordinals.lean` |
+
+- Root entry point: `MKplus.lean` — imports only, no definitions.
+- Template: `_template.lean` — underscore prefix marks non-imported utility files.
+
+---
+
+### (NC-2) Namespaces
+
+`UpperCamelCase`. Mirror the module file hierarchy.
+
+| Level | Pattern | Example |
+|-------|---------|---------|
+| Root | `MKplus` | `namespace MKplus` |
+| Sub | `MKplus.Topic` | `namespace MKplus.Ordinals` |
+
+- One namespace per module as a rule.
+- Do not create sub-namespaces solely for grouping within a file — use `section` instead.
+- `private` declarations do not need their own namespace.
+
+---
+
+### (NC-3) Types and Prop-predicates (`def` returning `Type` or `Prop`)
+
+`UpperCamelCase`. This matches Mathlib's convention for `IsEmpty`, `IsClosed`, `Finset`, etc.
+
+| Kind | Example |
+|------|---------|
+| Sort/Type | `Class` |
+| Prop predicate | `IsSet`, `IsClassFun`, `SubClass` |
+
+---
+
+### (NC-4) Functions and term-level definitions (`def` returning a value)
+
+`lowerCamelCase`.
+
+| Kind | Example |
+|------|---------|
+| Ordered pair constructor | `oPair` |
+| Domain of a relation | `dom` |
+| Image under a function | `img` |
+
+---
+
+### (NC-5) Axioms
+
+Prefix `MK_` + `UpperCamelCase` short name. The prefix signals axiomatic (unproven) status.
+
+| Pattern | Example |
+|---------|---------|
+| `MK_ShortName` | `MK_Ext`, `MK_Found`, `MK_Pair`, `MK_Union`, `MK_Pow` |
+| `MK_Compound` | `MK_GlobalChoice`, `MK_CAC` |
+
+Rules:
+
+- `MK_` always uppercase, followed immediately by the descriptor without extra underscores.
+- Short descriptors: `Ext` (Extensionality), `Found` (Foundation), `Pair`, `Union`, `Pow` (Power),
+  `Inf` (Infinity), `Comp` (Comprehension), `Repl` (Replacement), `GlobalChoice`, `CAC`.
+- MK⁺-specific axioms use the same prefix: `MK_CAC`.
+
+---
+
+### (NC-6) Exportable theorems and lemmas
+
+Follow Mathlib4's **subject\_predicate** pattern, all `lowerCamelCase` with underscores.
+
+```text
+[subject]_[predicate]
+[subject]_[predicate]_[object]
+[subject]_[predicate]_of_[hypothesis]
+```
+
+Standard suffixes:
+
+| Suffix | Meaning | Example |
+|--------|---------|---------|
+| `_iff` | biconditional | `mem_pair_iff` |
+| `_eq` | equality | `empty_eq` |
+| `_of_` | follows from | `isSet_of_mem` |
+| `_mem` | membership | `pair_mem` |
+| `_subset` | inclusion | `inter_subset_left` |
+| `_ne` | inequality | `succ_ne_empty` |
+| `_unique` | uniqueness | `empty_unique` |
+| `_exists` | existence | `pair_exists` |
+
+Examples for MKplus:
+
+| Name | Meaning |
+|------|---------|
+| `isSet_of_mem` | if x ∈ Y then x is a set |
+| `mem_pair_iff` | u ∈ {x,y} ↔ u = x ∨ u = y |
+| `ext_iff` | X = Y ↔ ∀ u, IsSet u → (u ∈ X ↔ u ∈ Y) |
+| `found_minimal` | minimal element given by Foundation |
+| `classChoice_fun` | class-function given by CAC |
+
+---
+
+### (NC-7) Private and auxiliary declarations
+
+Use the `private` keyword. Optionally append `_aux` for intermediate steps.
+
+```lean
+private lemma isSet_of_mem_aux : … := …
+private def pairWitness_aux : … := …
+```
+
+- `_aux` suffix is optional but recommended when the lemma is a stepping stone within a proof.
+- Never export `_aux` names.
+
+---
+
+### (NC-8) Notations
+
+Document every introduced notation in REFERENCE.md §5 with: symbol, priority, scope, expansion.
+
+Rules:
+
+- Prefer `local notation` inside namespaces to avoid global pollution.
+- Follow Mathlib Unicode conventions where a standard symbol exists (∈, ⊆, ∅, ⟨⟩).
+- Custom symbols (e.g., `∈ᴹ`, `⊆ᴹ`, `⟪·,·⟫`) must be declared `local` unless they are the
+  project's primary notation and will never conflict with Mathlib imports.
+- Priority: follow Lean 4 defaults (50 for relations, 65 for arithmetic operators).
+
+---
+
+### (NC-9) Section names
+
+`UpperCamelCase`, descriptive.
+
+```lean
+section Extensionality
+section PairingLemmas
+section FoundationConsequences
+```
+
+---
+
+### (NC-10) Summary table
+
+| Entity | Convention | Example |
+|--------|-----------|---------|
+| Module (`.lean` file) | `UpperCamelCase` | `MKplusAxioms.lean` |
+| Namespace | `UpperCamelCase` | `MKplus`, `MKplus.Ordinals` |
+| Type / Prop predicate | `UpperCamelCase` | `IsSet`, `SubClass` |
+| Function / value def | `lowerCamelCase` | `oPair`, `dom` |
+| Axiom | `MK_ShortName` | `MK_Ext`, `MK_CAC` |
+| Exportable theorem | `subject_predicate` | `mem_pair_iff` |
+| Private / auxiliary | `private` + optional `_aux` | `private lemma foo_aux` |
+| Section | `UpperCamelCase` | `section Pairing` |
+| Notation | `local notation` preferred | `local notation:50 …` |
+
+---
+
 ## Compliance
 
-Verify that REFERENCE.md, `.lean` files, and documentation files comply with all points (0–20) before considering documentation complete and up to date.
+Verify that REFERENCE.md, `.lean` files, and documentation files comply with all points (0–20) and naming conventions (NC-1–NC-10) before considering documentation complete and up to date.
