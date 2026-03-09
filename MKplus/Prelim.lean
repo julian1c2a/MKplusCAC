@@ -25,11 +25,17 @@ def ExistsUnique {α : Sort u} (p : α → Prop) : Prop :=
 
 /-! ### Notation ###
   ∃! x, p   — standard-looking notation (overrides Lean built-in ∃!)
-  ∃¹ x, p   — safe notation (no clash risk, Peano-style, 4 variants) -/
+  ∃¹ x, p   — safe notation (no clash risk, Peano-style, 4 variants) — preferred notation -/
 
 syntax "∃! " ident ", " term : term
+syntax "∃! " "(" ident ")" ", " term : term
+syntax "∃! " "(" ident " : " term ")" ", " term : term
+syntax "∃! " ident " : " term ", " term : term
 macro_rules
-  | `(∃! $x, $p) => `(ExistsUnique fun $x => $p)
+  | `(∃! $x:ident, $p:term)                     => `(ExistsUnique (fun $x => $p))
+  | `(∃! ($x:ident), $p:term)                   => `(ExistsUnique (fun $x => $p))
+  | `(∃! ($x:ident : $t:term), $p:term)         => `(ExistsUnique (fun ($x : $t) => $p))
+  | `(∃! $x:ident : $t:term, $p:term)           => `(ExistsUnique (fun ($x : $t) => $p))
 
 syntax "∃¹ " ident ", " term : term
 syntax "∃¹ " "(" ident ")" ", " term : term
