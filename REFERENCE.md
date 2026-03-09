@@ -20,12 +20,38 @@
 
 ## 2. Dependency Graph
 
+### 2.1 Project Structure
+
+```text
+MKplus/
+├── Prelim.lean         # Preliminary definitions
+└── _template.lean      # Module template (not imported)
+MKplus.lean             # Root module (imports only, no definitions)
+```
+
+### 2.2 Graph
+
 ```mermaid
 graph TD
     IC[Init.Classical] --> P[Prelim.lean]
+    P --> Z[MKplus.lean]
 ```
 
 *(Update this diagram as modules are added)*
+
+### 2.3 Dependencies by Level
+
+| Level | Module        | Depends on       |
+|-------|---------------|------------------|
+| 0     | `Prelim.lean` | `Init.Classical` |
+| Root  | `MKplus.lean` | `Prelim.lean`    |
+
+### 2.4 Design Notes
+
+- **Separation of concerns**: each module handles one mathematical topic.
+- **Minimal dependencies**: only import what is strictly needed.
+- **Selective exports**: only public definitions and theorems are exported.
+- **No Mathlib** unless explicitly required — add to `lakefile.lean`.
 
 ---
 
