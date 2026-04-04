@@ -154,6 +154,61 @@ theorem isFunOn_restrict (hF : IsFunOn F B) (A : Class) : IsFunOn (F ↾ᴹ A) (
     rw [mem_dom_iff' hx_isSet]
     exact ⟨y, hF_mem⟩
 
+theorem surjective_iff_forall_exists_app (hF : IsFun F) (B : Class) :
+    IsSurjective F B ↔ ∀ y, y ∈ᴹ B → ∃ x, x ∈ᴹ dom F ∧ F ⦑ x ⦒ = y := by
+  constructor
+  · intro h_surj
+    intro y hy_in_B
+    have hy_in_rng : y ∈ᴹ rng F := by rw [h_surj]; exact hy_in_B
+    rw [mem_rng_iff] at hy_in_rng
+    obtain ⟨hy_set, x, hx_set, h_xy_in_F⟩ := hy_in_rng
+    have hx_in_dom : x ∈ᴹ dom F := (mem_dom_iff' hx_set).mpr ⟨y, h_xy_in_F⟩
+    use x, hx_in_dom
+    dsimp [app]
+    rw [dif_pos ⟨hx_set, ⟨y, hy_set, h_xy_in_F⟩⟩]
+    let y' := Classical.choose ⟨y, hy_set, h_xy_in_F⟩
+    have hy'_spec := Classical.choose_spec ⟨y, hy_set, h_xy_in_F⟩
+    have h_xy'_in_F := hy'_spec.2
+    exact (hF.2 x y' y hx_set hy'_spec.1 hy_set h_xy'_in_F h_xy_in_F).symm
+  · intro h_forall
+    apply subset_antisymm
+    · intro y hy_in_rng
+      rw [mem_rng_iff] at hy_in_rng
+      obtain ⟨hy_set, x, hx_set, h_xy_in_F⟩ := hy_in_rng
+      sorry -- Need to prove y ∈ B from here
+    · intro y hy_in_B
+      obtain ⟨x, hx_in_dom, h_app_eq_y⟩ := h_forall y hy_in_B
+      rw [mem_rng_iff]
+      sorry -- Need to prove ∃x, ⟪x,y⟫ ∈ F
+
+theorem injective_iff_app_eq_imp_eq (F : Class) :
+    IsInjective F ↔ IsFun F ∧ ∀ x₁ x₂ y₁ y₂,
+      IsSet x₁ → IsSet x₂ → IsSet y₁ → IsSet y₂ →
+      x₁ ∈ᴹ dom F → x₂ ∈ᴹ dom F →
+      ⟪x₁, y₁⟫ ∈ᴹ F → ⟪x₂, y₂⟫ ∈ᴹ F →
+      y₁ = y₂ → x₁ = x₂ := by
+  constructor
+  · rintro ⟨hFun, hInv⟩
+    refine ⟨hFun, ?_⟩
+    intro x₁ x₂ y₁ y₂ hx₁ hx₂ hy₁ hy₂ _ _ hF₁ hF₂ hy
+    subst hy
+    have h_inv_mem₁ : ⟪y₁, x₁⟫ ∈ᴹ F⁻¹ := (mem_inv_iff F _).mpr ⟨x₁, y₁, hx₁, hy₁, hF₁, rfl⟩
+    have h_inv_mem₂ : ⟪y₁, x₂⟫ ∈ᴹ F⁻¹ := (mem_inv_iff F _).mpr ⟨x₂, y₁, hx₂, hy₁, hF₂, rfl⟩
+    exact hInv y₁ x₁ x₂ hy₁ hx₁ hx₂ h_inv_mem₁ h_inv_mem₂
+  · rintro ⟨hFun, h_eq⟩
+    refine ⟨hFun, ?_⟩
+    intro y x₁ x₂ hy hx₁ hx₂ h_inv₁ h_inv₂
+    obtain ⟨x₁', y₁', hx₁', hy₁', hF₁, heq₁⟩ := (mem_inv_iff F _).mp h_inv₁
+    obtain ⟨x₂', y₂', hx₂', hy₂', hF₂, heq₂⟩ := (mem_inv_iff F _).mp h_inv₂
+    obtain ⟨rfl, rfl⟩ := opair_inj hy hx₁ hy₁' hx₁' heq₁
+    obtain ⟨rfl, rfl⟩ := opair_inj hy hx₂ hy₂' hx₂' heq₂
+    apply h_eq x₁ x₂ y y hx₁ hx₂ hy hy
+    · rw [mem_dom_iff' hx₁]; exact ⟨y, hF₁⟩
+    · rw [mem_dom_iff' hx₂]; exact ⟨y, hF₂⟩
+    · exact hF₁
+    · exact hF₂
+    · rfl
+
 theorem mem_restrict_iff' (F A p : Class) :
     p ∈ᴹ F ↾ᴹ A ↔ p ∈ᴹ F ∧ ∃ x y, IsSet x ∧ IsSet y ∧ x ∈ᴹ A ∧ p = ⟪x, y⟫ := by
   constructor
