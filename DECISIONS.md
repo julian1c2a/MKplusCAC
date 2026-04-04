@@ -1,4 +1,4 @@
-# Design Decisions — MKplus
+# Design Decisions — MKplusCAC
 
 **Last updated:** 2026-03-09 00:00
 **Author**: Julián Calderón Almendros

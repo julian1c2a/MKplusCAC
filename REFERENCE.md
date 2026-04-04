@@ -1,4 +1,4 @@
-# Technical Reference — MKplus
+# Technical Reference — MKplusCAC
 
 **Last updated:** 2026-03-09 00:00
 **Author**: Julián Calderón Almendros
@@ -23,10 +23,10 @@
 ### 2.1 Project Structure
 
 ```text
-MKplus/
+MKplusCAC/
 ├── Prelim.lean         # Preliminary definitions
 └── _template.lean      # Module template (not imported)
-MKplus.lean             # Root module (imports only, no definitions)
+MKplusCAC.lean             # Root module (imports only, no definitions)
 ```
 
 ### 2.2 Graph
@@ -34,7 +34,7 @@ MKplus.lean             # Root module (imports only, no definitions)
 ```mermaid
 graph TD
     IC[Init.Classical] --> P[Prelim.lean]
-    P --> Z[MKplus.lean]
+    P --> Z[MKplusCAC.lean]
 ```
 
 *(Update this diagram as modules are added)*
@@ -44,7 +44,7 @@ graph TD
 | Level | Module        | Depends on       |
 |-------|---------------|------------------|
 | 0     | `Prelim.lean` | `Init.Classical` |
-| Root  | `MKplus.lean` | `Prelim.lean`    |
+| Root  | `MKplusCAC.lean` | `Prelim.lean`    |
 
 ### 2.4 Design Notes
 

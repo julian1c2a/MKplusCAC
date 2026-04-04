@@ -32,5 +32,5 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Links
 
-- [Repository](https://github.com/julian1c2a/MKplus)
-- [Issues](https://github.com/julian1c2a/MKplus/issues)
+- [Repository](https://github.com/julian1c2a/MKplusCAC)
+- [Issues](https://github.com/julian1c2a/MKplusCAC/issues)

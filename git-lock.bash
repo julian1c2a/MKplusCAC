@@ -13,12 +13,12 @@
 #            Frozen status can only be reverted with 'thaw --confirm' in emergencies.
 #
 # Usage:
-#   bash git-lock.bash lock   <file>           # temporary lock
-#   bash git-lock.bash unlock <file>           # temporary unlock (blocked if frozen)
-#   bash git-lock.bash freeze <file>           # permanent freeze (Complete -> Frozen)
-#   bash git-lock.bash thaw   <file> --confirm # emergency unfreeze (requires flag)
-#   bash git-lock.bash list                    # show all locked and frozen files
-#   bash git-lock.bash init                    # install/reinstall pre-commit hook
+#   bash git-lock.bash lock   MKplusCAC/Module.lean   # temporary lock
+#   bash git-lock.bash unlock MKplusCAC/Module.lean   # temporary unlock (blocked if frozen)
+#   bash git-lock.bash freeze MKplusCAC/Module.lean   # permanent freeze (Complete -> Frozen)
+#   bash git-lock.bash thaw   MKplusCAC/Module.lean --confirm  # emergency unfreeze
+#   bash git-lock.bash list                             # show all locked and frozen files
+#   bash git-lock.bash init                             # install/reinstall pre-commit hook
 #
 # Protocol — session:
 #   1. Session start : run 'list'. Unlock only the target file.
@@ -29,7 +29,7 @@
 # Protocol — extension of frozen modules:
 #   - Never thaw a frozen module to add new content.
 #   - Create ModuleExt.lean, import the frozen module, reopen its namespace.
-#   - See AIDER-AI-GUIDE.md section 21 for the full extension protocol.
+#   - See AI-GUIDE.md section 21 for the full extension protocol.
 
 LOCK_LIST="locked_files.txt"
 FROZEN_LIST="frozen_files.txt"
@@ -61,7 +61,7 @@ show_help() {
     echo "  init                    Install/reinstall the pre-commit hook"
     echo ""
     echo "Frozen modules cannot be unlocked. Extend them via *Ext.lean files."
-    echo "See AIDER-AI-GUIDE.md section 21 for the extension protocol."
+    echo "See AI-GUIDE.md section 21 for the extension protocol."
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ case $COMMAND in
             echo "  Frozen modules are immutable. To add content, create an extension:"
             EXT_NAME="$(dirname "$FILE")/$(basename "${FILE%.lean}")Ext.lean"
             echo "  -> $EXT_NAME  (imports this file, reopens its namespace)"
-            echo "  See AIDER-AI-GUIDE.md section 21 for the extension protocol."
+            echo "  See AI-GUIDE.md section 21 for the extension protocol."
             echo ""
             echo "  Emergency only: bash git-lock.bash thaw $FILE --confirm"
             exit 1
@@ -165,7 +165,7 @@ case $COMMAND in
         EXT_NAME="$(dirname "$FILE")/$(basename "${FILE%.lean}")Ext.lean"
         echo "  -> $EXT_NAME"
         echo "  that imports this file and reopens its namespace."
-        echo "  See AIDER-AI-GUIDE.md section 21 for the extension protocol."
+        echo "  See AI-GUIDE.md section 21 for the extension protocol."
         ;;
 
     # ── thaw ──────────────────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ if [ -f "$FROZEN_LIST" ]; then
             EXT="$(dirname "$FROZEN_FILE")/$(basename "${FROZEN_FILE%.lean}")Ext.lean"
             echo "  This module is permanently frozen. Create an extension instead:"
             echo "  -> $EXT"
-            echo "  See AIDER-AI-GUIDE.md section 21 for the extension protocol."
+            echo "  See AI-GUIDE.md section 21 for the extension protocol."
             ERROR=1
         fi
     done < "$FROZEN_LIST"
@@ -284,7 +284,7 @@ SORRY_COUNT=0
 for F in $STAGED_FILES; do
     if [[ "$F" == *.lean ]] && [ -f "$F" ]; then
         N=$(grep -c 'sorry' "$F" 2>/dev/null || true)
-        N="${N//[^0-9]/}"
+        N="${N//[^0-9]/}"   # strip any non-numeric chars (MSYS safety)
         N="${N:-0}"
         if [ "$N" -gt 0 ] 2>/dev/null; then
             echo "WARNING: $N sorry in $F"

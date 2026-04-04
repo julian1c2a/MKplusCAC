@@ -1,10 +1,10 @@
 #!/bin/bash
-# gen-root.bash — Regenerate root MKplus.lean with all module imports
+# gen-root.bash — Regenerate root MKplusCAC.lean with all module imports
 #
 # Usage: bash gen-root.bash
 #
-# Scans MKplus/ for all .lean files (excluding _template.lean),
-# sorts them, and rewrites MKplus.lean with the full import list.
+# Scans MKplusCAC/ for all .lean files (excluding _template.lean),
+# sorts them, and rewrites MKplusCAC.lean with the full import list.
 # The root file is unlocked before writing and re-locked if it was locked.
 
 set -e
@@ -19,14 +19,14 @@ fi
 ROOT_FILE="${PROJECT_NAME}.lean"
 MODULE_DIR="${PROJECT_NAME}"
 YEAR=$(date +%Y)
-AUTHOR=$(git config user.name 2>/dev/null || echo "Julián Calderón Almendros")
+AUTHOR=$(git config user.name 2>/dev/null || echo "Your Name")
 
 # Collect all .lean files, excluding _template.lean, sorted
 IMPORTS=()
 while IFS= read -r FILE; do
     BASENAME=$(basename "$FILE" .lean)
     [ "$BASENAME" = "_template" ] && continue
-    # Convert file path to import name: MKplus/Foo/Bar.lean -> MKplus.Foo.Bar
+    # Convert file path to import name: MKplusCAC/Foo/Bar.lean -> MKplusCAC.Foo.Bar
     REL="${FILE#${MODULE_DIR}/}"
     REL="${REL%.lean}"
     IMPORT_NAME="${PROJECT_NAME}.${REL//\//.}"

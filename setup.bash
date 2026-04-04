@@ -2,14 +2,14 @@
 # setup.bash — Initialize a new project from this template
 #
 # Usage:
-#   bash setup.bash MKplus "Author Name"
-#   bash setup.bash MKplus "Author Name" "github-username"
+#   bash setup.bash MKplusCAC "Author Name"
+#   bash setup.bash MKplusCAC "Author Name" "github-username"
 #
 # What it does:
-#   1. Renames MKplus/ directory and MKplus.lean
-#   2. Replaces all "MKplus" occurrences in all files
-#   3. Replaces "Julián Calderón Almendros" with the provided author name
-#   4. Replaces github.com/julian1c2a with actual username (optional)
+#   1. Renames MKplusCAC/ directory and MKplusCAC.lean
+#   2. Replaces all "MKplusCAC" occurrences in all files
+#   3. Replaces "Your Name" with the provided author name
+#   4. Replaces github.com/your-username with actual username (optional)
 #   5. Updates copyright year to current year
 #   6. Makes an initial commit with the new project name
 
@@ -18,7 +18,7 @@ set -e
 # ── Arguments ────────────────────────────────────────────────────────────────
 
 if [ $# -lt 2 ]; then
-    echo "Usage: bash setup.bash MKplus \"Author Name\" [github-username]"
+    echo "Usage: bash setup.bash MKplusCAC \"Author Name\" [github-username]"
     echo ""
     echo "Example:"
     echo "  bash setup.bash IntegerTheory \"Julián Calderón Almendros\" julian1c2a"
@@ -27,9 +27,9 @@ fi
 
 NEW_NAME="$1"
 AUTHOR="$2"
-GH_USER="${3:-julian1c2a}"
+GH_USER="${3:-your-username}"
 YEAR=$(date +%Y)
-OLD_NAME="MKplus"
+OLD_NAME="MKplusCAC"
 
 # Validate: project name must be a valid Lean identifier
 if ! echo "$NEW_NAME" | grep -qE '^[A-Za-z][A-Za-z0-9_]*$'; then
@@ -39,7 +39,7 @@ if ! echo "$NEW_NAME" | grep -qE '^[A-Za-z][A-Za-z0-9_]*$'; then
 fi
 
 if [ "$NEW_NAME" = "$OLD_NAME" ]; then
-    echo "Error: New name must differ from 'MKplus'."
+    echo "Error: New name must differ from 'MKplusCAC'."
     exit 1
 fi
 
@@ -83,21 +83,21 @@ for FILE in $TEXT_FILES; do
 
     CHANGED=false
 
-    # Replace MKplus → NewName
+    # Replace MKplusCAC → NewName
     if grep -qF "$OLD_NAME" "$FILE" 2>/dev/null; then
         sed -i "s/${OLD_NAME}/${NEW_NAME}/g" "$FILE"
         CHANGED=true
     fi
 
-    # Replace "Julián Calderón Almendros" → Author
-    if grep -qF "Julián Calderón Almendros" "$FILE" 2>/dev/null; then
-        sed -i "s/Julián Calderón Almendros/${AUTHOR}/g" "$FILE"
+    # Replace "Your Name" → Author
+    if grep -qF "Your Name" "$FILE" 2>/dev/null; then
+        sed -i "s/Your Name/${AUTHOR}/g" "$FILE"
         CHANGED=true
     fi
 
-    # Replace "julian1c2a" → GH_USER
-    if grep -qF "julian1c2a" "$FILE" 2>/dev/null; then
-        sed -i "s/julian1c2a/${GH_USER}/g" "$FILE"
+    # Replace "your-username" → GH_USER
+    if grep -qF "your-username" "$FILE" 2>/dev/null; then
+        sed -i "s/your-username/${GH_USER}/g" "$FILE"
         CHANGED=true
     fi
 
@@ -107,10 +107,10 @@ for FILE in $TEXT_FILES; do
         CHANGED=true
     fi
 
-    # Replace "2026-03-09 00:00" timestamps → today
+    # Replace "2025-01-01 00:00" timestamps → today
     TODAY=$(date +%Y-%m-%d)
-    if grep -qF "2026-03-09 00:00" "$FILE" 2>/dev/null; then
-        sed -i "s/2026-03-09 00:00/${TODAY} 00:00/g" "$FILE"
+    if grep -qF "2025-01-01 00:00" "$FILE" 2>/dev/null; then
+        sed -i "s/2025-01-01 00:00/${TODAY} 00:00/g" "$FILE"
         CHANGED=true
     fi
 
@@ -133,7 +133,7 @@ git add -A
 git commit -m "chore: initialize project as '${NEW_NAME}' by ${AUTHOR}
 
 Renamed from lean4-project-template:
-- MKplus → ${NEW_NAME}
+- MKplusCAC → ${NEW_NAME}
 - Author: ${AUTHOR}
 - GitHub: ${GH_USER}
 

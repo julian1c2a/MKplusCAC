@@ -30,14 +30,14 @@ License: MIT
       by design; concrete proofs will live in separate modules.
 -/
 
-import MKplus.Prelim
+import MKplusCAC.Prelim
 -- Available from Prelim (no re-import needed):
 --   ExistsUnique, ∃! x, p, ∃¹ x, p
 --   ExistsUnique.intro / .exists / .choose / .choose_spec / .unique
 --   choose_unique / choose_spec_unique / choose_uniq  (Peano-compatible)
 --   Classical.*   (via open Classical in Prelim)
 
-namespace MKplus
+namespace MKplusCAC
 
 open Classical
 
@@ -847,4 +847,4 @@ theorem classful_unique_image (F x : Class) (hF : IsClassFun F) (hx : IsSet x)
   exact (hF x y z hx hy_set hz_set hy hz).symm
 
 
-end MKplus
+end MKplusCAC

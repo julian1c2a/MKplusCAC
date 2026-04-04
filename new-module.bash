@@ -5,9 +5,9 @@
 #   bash new-module.bash ModuleName
 #   bash new-module.bash Algebra/Ring
 #
-# Creates:  MKplus/ModuleName.lean  (from _template.lean)
-# Updates:  MKplus.lean             (adds import line)
-# Unlocks:  MKplus.lean for editing (re-locks after update)
+# Creates:  MKplusCAC/ModuleName.lean  (from _template.lean)
+# Updates:  MKplusCAC.lean             (adds import line)
+# Unlocks:  MKplusCAC.lean for editing (re-locks after update)
 
 set -e
 
@@ -27,9 +27,9 @@ if [ -z "$PROJECT_NAME" ]; then
 fi
 
 # Convert path argument to file path and import name
-# e.g. "Algebra/Ring" -> file: MKplus/Algebra/Ring.lean
-#                      -> import: MKplus.Algebra.Ring
-#                      -> namespace: MKplus.Algebra.Ring
+# e.g. "Algebra/Ring" -> file: MKplusCAC/Algebra/Ring.lean
+#                      -> import: MKplusCAC.Algebra.Ring
+#                      -> namespace: MKplusCAC.Algebra.Ring
 MODULE_PATH="${MODULE_ARG//./\/}"                        # dots to slashes
 TARGET_FILE="${PROJECT_NAME}/${MODULE_PATH}.lean"
 IMPORT_NAME="${PROJECT_NAME}.${MODULE_ARG//\//.}"        # slashes to dots
@@ -53,13 +53,13 @@ fi
 
 # Get current year for copyright
 YEAR=$(date +%Y)
-AUTHOR=$(git config user.name 2>/dev/null || echo "Julián Calderón Almendros")
+AUTHOR=$(git config user.name 2>/dev/null || echo "Your Name")
 
 sed \
     -e "s/Copyright (c) 2025/Copyright (c) ${YEAR}/" \
-    -e "s/Author: Julián Calderón Almendros/Author: ${AUTHOR}/" \
-    -e "s/MKplus\.ModuleName/${NAMESPACE_NAME}/g" \
-    -e "s/import MKplus\.Prelim/import ${PROJECT_NAME}.Prelim/" \
+    -e "s/Author: Your Name/Author: ${AUTHOR}/" \
+    -e "s/MKplusCAC\.ModuleName/${NAMESPACE_NAME}/g" \
+    -e "s/import MKplusCAC\.Prelim/import ${PROJECT_NAME}.Prelim/" \
     "$TEMPLATE" > "$TARGET_FILE"
 
 echo "✅ Created: $TARGET_FILE"
@@ -92,4 +92,4 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit '$TARGET_FILE'"
 echo "  2. After completion, lock it: bash git-lock.bash lock $TARGET_FILE"
-echo "  3. Project into REFERENCE.md (see AIDER-AI-GUIDE.md §12)"
+echo "  3. Project into REFERENCE.md (see AI-GUIDE.md §12)"
