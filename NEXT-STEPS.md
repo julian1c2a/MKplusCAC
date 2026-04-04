@@ -1,74 +1,59 @@
-# Next Steps — MKplusCAC
+# Próximos Pasos: Desarrollo de MKplusCAC
 
-**Last updated:** 2026-04-04 00:00
-**Author**: Julián Calderón Almendros
+Este documento detalla el plan estratégico y la hoja de ruta para la formalización matemática del proyecto **MKplusCAC** (Morse-Kelley + Class Axiom Scheme of Choice) en Lean 4.
 
-> This file tracks planned development phases. Each phase includes
-> objectives, modules to create, dependencies, and estimated complexity.
+## 1. Estado Actual de los Axiomas
+Tras una revisión exhaustiva de `MKplusCACAxioms.lean`, podemos confirmar que **todos los axiomas fundacionales están correctamente definidos**. Esto incluye:
+*   Extensionalidad, Fundación, Par, Unión, Partes e Infinitud (A1-A6).
+*   El esquema de Comprensión de Clases (A7).
+*   Reemplazo (A8).
+*   El Axioma de Elección Global de Kelley (A9).
+*   El Esquema Axiomático de Elección de Clases (CAC).
 
----
+La base axiomática está completa y lista para soportar la teoría.
 
-## Phase 1: Foundations
+## 2. Metodología de Desarrollo por Capas
+Para mantener el código organizado, libre de dependencias circulares y conceptualmente claro, implementaremos la teoría siguiendo una estricta jerarquía de capas en cada nuevo módulo:
 
-**Objective**: Establish core infrastructure in `Prelim.lean`.
+1.  **Operaciones para Clases:** Definición pura de los constructos matemáticos a nivel general de clases (ej. uniones arbitrarias, producto cartesiano).
+2.  **Teoremas para Clases (Operaciones):** Demostración de propiedades algebraicas y leyes lógicas que rigen estas operaciones.
+3.  **Definición de Propiedades para Clases:** Definición de predicados sobre clases (ej. ser transitiva, ser una relación de equivalencia, ser una función).
+4.  **Teoremas para Clases (Propiedades):** Resultados que derivan de las definiciones anteriores.
+5.  **Operaciones Restringidas a Conjuntos:** Definiciones específicas (si son necesarias) para garantizar que las operaciones entre *sets* producen *sets*.
+6.  **Definición de Propiedades Restringidas a Conjuntos:** Predicados exclusivos para conjuntos (ej. cardinalidad).
+7.  **Teoremas para Conjuntos:** Teoremas que requieren la asunción de `IsSet X` para ser válidos o que son resultados clásicos de la teoría de conjuntos de Zermelo-Fraenkel.
 
-**Modules**:
-- [x] `Prelim.lean` — ExistsUnique, basic infrastructure
+## 3. Estrategia de Inclusión (Paralelismo con ZFC)
+Un objetivo central de este proyecto es demostrar que la teoría clásica de conjuntos de Zermelo-Fraenkel con Elección (ZFC) está contenida dentro de MK. 
+*   **Diseño:** Aunque nuestra ontología base distingue entre "Clases" y "Conjuntos" desde el minuto cero, los nombres de los teoremas de conjuntos, el orden de la materia y la estructura jerárquica emularán lo más fielmente posible a `ZfcSetTheory`.
+*   **Beneficio:** Esto permitirá construir fácilmente un functor o mapeo lógico que demuestre formalmente la inclusión de ZFC en MK en etapas posteriores del proyecto.
 
-**Dependencies**: None (Level 0)
-**Complexity**: Simple
+## 4. Secuencia de Módulos (Hoja de Ruta Inmediata)
+El desarrollo lógico comenzará construyendo las herramientas básicas de relaciones y funciones, para culminar en la teoría de ordinales. El orden estricto de los siguientes ficheros `.lean` será:
 
----
+### Fase 1: `Relations.lean`
+*   Pares ordenados (repaso y expansión).
+*   Producto cartesiano de clases.
+*   Definición de Relación binaria.
+*   Dominio y Rango (Codominio).
+*   Relación inversa.
+*   Composición de relaciones.
+*   Relaciones de equivalencia y orden.
 
-## Phase 2: Core Axioms
+### Fase 2: `Functions.lean`
+*   Definición de función (como relación unívoca).
+*   Dominio y valores de funciones (evaluación).
+*   Inyectividad, sobreyectividad y biyectividad.
+*   Composición de funciones e inversas.
+*   Restricción de funciones.
+*   Funciones sobre conjuntos y preservación de `IsSet` (Reemplazo).
 
-**Objective**: Implement the fundamental axioms of Morse-Kelley set theory and the Class Axiom of Choice (CAC).
-
-**Modules**:
-- [x] `MKplusCACAxioms.lean` — Core axioms and basic class/set definitions
-
-**Dependencies**: Phase 1 complete (`Prelim.lean`)
-**Complexity**: Medium
-
----
-
-## Phase 3: Naming Migration
-
-**Objective**: Ensure all identifiers follow Mathlib naming conventions.
-
-**Modules**: All existing modules (`Prelim.lean` and `MKplusCACAxioms.lean`)
-**Reference**: [NAMING-CONVENTIONS.md](NAMING-CONVENTIONS.md)
-
-**Steps**:
-1. Audit all exported names against `NAMING-CONVENTIONS.md`.
-2. Rename definitions: `UpperCamelCase` for Prop/Type, `lowerCamelCase` for functions.
-3. Rename theorems: `subject_predicate` pattern with standard suffixes.
-4. Verify full compilation after each rename batch.
-5. Update `REFERENCE.md` with the new names.
-
-**Dependencies**: Phase 2 substantially complete
-**Complexity**: Medium (mechanical but requires full recompilation and structural review)
-
----
-
-## Phase 4: First Derived Modules
-
-**Objective**: Build the first domain-specific modules derived from the axioms (e.g., relations, functions, ordinals).
-
-**Modules**:
-- [ ] `Relations.lean` / `Functions.lean` (TBD)
-- [ ] `Ordinals.lean` (TBD)
-
-**Dependencies**: Phase 3 complete
-**Complexity**: High
+### Fase 3: `Ordinals.lean`
+*   Clases y conjuntos transitivos.
+*   Relaciones bien fundadas y buen orden en MK.
+*   Definición de Ordinales de von Neumann (conjuntos transitivos bien ordenados por $\in$).
+*   Propiedades básicas de los ordinales.
+*   Inducción y recursión transfinita (a nivel de clases y conjuntos).
 
 ---
-
-## Phase Status Summary
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| 1 | Foundations | ✅ Complete |
-| 2 | Core Axioms | ✅ Complete |
-| 3 | Naming Migration | ✅ Complete |
-| 4 | First Derived Modules | ❌ Pending |
+*Este documento actuará como la guía principal para las próximas interacciones y el desarrollo de nuevo código en el proyecto.*

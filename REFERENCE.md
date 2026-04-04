@@ -1,6 +1,6 @@
 # Technical Reference — MKplusCAC
 
-**Last updated:** 2026-03-09 00:00
+**Last updated:** 2026-04-04 00:00
 **Author**: Julián Calderón Almendros
 **Lean version**: v4.28.0
 
@@ -13,6 +13,8 @@
 | Module | Namespace | Dependencies | Status |
 |--------|-----------|--------------|--------|
 | `Prelim.lean` | top-level | `Init.Classical` | ✅ Completo |
+| `MKplusCACAxioms.lean` | `MKplusCAC` | `Prelim.lean` | ✅ Completo |
+| `Relations.lean` | `MKplusCAC` | `MKplusCACAxioms.lean` | ✅ Completo |
 
 *Status codes*: ✅ Completo · 🔶 Parcial · 🔄 En progreso · ❌ Pendiente
 
@@ -24,8 +26,10 @@
 
 ```text
 MKplusCAC/
-├── Prelim.lean         # Preliminary definitions
-└── _template.lean      # Module template (not imported)
+├── Prelim.lean            # Preliminary definitions
+├── MKplusCACAxioms.lean   # Core axioms for MK+CAC
+├── Relations.lean         # Relations, prod, inv, comp
+└── _template.lean         # Module template (not imported)
 MKplusCAC.lean             # Root module (imports only, no definitions)
 ```
 
@@ -34,17 +38,21 @@ MKplusCAC.lean             # Root module (imports only, no definitions)
 ```mermaid
 graph TD
     IC[Init.Classical] --> P[Prelim.lean]
-    P --> Z[MKplusCAC.lean]
+    P --> A[MKplusCACAxioms.lean]
+    A --> R[Relations.lean]
+    R --> Z[MKplusCAC.lean]
 ```
 
 *(Update this diagram as modules are added)*
 
 ### 2.3 Dependencies by Level
 
-| Level | Module        | Depends on       |
-|-------|---------------|------------------|
-| 0     | `Prelim.lean` | `Init.Classical` |
-| Root  | `MKplusCAC.lean` | `Prelim.lean`    |
+| Level | Module | Depends on |
+|-------|--------|------------|
+| 0 | `Prelim.lean` | `Init.Classical` |
+| 1 | `MKplusCACAxioms.lean`| `Prelim.lean` |
+| 2 | `Relations.lean` | `MKplusCACAxioms.lean` |
+| Root | `MKplusCAC.lean` | `Relations.lean` |
 
 ### 2.4 Design Notes
 
@@ -64,106 +72,89 @@ graph TD
 **Last updated**: 2026-03-09 00:00
 **Status**: ✅ Completo
 
-Foundational infrastructure used by all modules: custom `ExistsUnique` with full API,
-both `∃!` and `∃¹` notations, dot-notation style and Peano-compatible aliases.
+Foundational infrastructure used by all modules: custom `ExistsUnique` with full API.
 
-#### ExistsUnique
+### 3.2 MKplusCACAxioms.lean
 
-**Mathematical statement**: p has a unique witness iff ∃ x, p x ∧ ∀ y, p y → y = x
+**Namespace**: `MKplusCAC`
+**Dependencies**: `Prelim.lean`
+**Status**: ✅ Completo
 
-**Lean 4 signature**:
-```lean
-def ExistsUnique {α : Sort u} (p : α → Prop) : Prop :=
-  ∃ x, p x ∧ ∀ y, p y → y = x
-```
+Core axioms of Morse-Kelley set theory plus the Class Axiom Scheme of Choice.
+Defines foundational notions such as `Mem`, `IsSet`, `SubClass`, `opair`, `classComp`, etc.
 
-**Computability**: noncomputable (witness extraction uses `Classical.choose`)
-**Dependencies**: `Init.Classical`
+### 3.3 Relations.lean
 
-**Full API**:
+**Namespace**: `MKplusCAC`
+**Dependencies**: `MKplusCACAxioms.lean`
+**Last updated**: 2026-04-04 00:00
+**Status**: ✅ Completo
 
-| Name (dot-notation) | Peano alias | Description |
-|---------------------|-------------|-------------|
-| `ExistsUnique.intro w hw h` | — | constructor |
-| `ExistsUnique.exists h` | `ExistsUnique.exists h` | extracts `∃ x, p x` |
-| `ExistsUnique.choose h` | `choose_unique h` | noncomputable witness |
-| `ExistsUnique.choose_spec h` | `choose_spec_unique h` | witness satisfies p |
-| `ExistsUnique.unique h y hy` | `choose_uniq h hy` | uniqueness: `y = witness` |
-
-**Lean 4 signatures**:
-```lean
-theorem ExistsUnique.intro {α : Sort u} {p : α → Prop} (w : α)
-    (hw : p w) (h : ∀ y, p y → y = w) : ExistsUnique p
-
-theorem ExistsUnique.exists {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : ∃ x, p x
-
-noncomputable def ExistsUnique.choose {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : α
-
-theorem ExistsUnique.choose_spec {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : p (h.choose)
-
-theorem ExistsUnique.unique {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : ∀ y, p y → y = h.choose
-
--- Peano-compatible aliases:
-noncomputable def choose_unique {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : α
-
-theorem choose_spec_unique {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) : p (choose_unique h)
-
-theorem choose_uniq {α : Sort u} {p : α → Prop}
-    (h : ExistsUnique p) {y : α} (hy : p y) : y = choose_unique h
-```
+Defines operations for classes interpreted as relations (Cartesian product, range, inverse, composition) and fundamental properties (reflexive, symmetric, transitive, etc.).
 
 ---
 
 ## 4. Theorems
 
-### 4.1 Prelim.lean
+### 4.1 Relations.lean
 
-*(See ExistsUnique API table in §3.1 — all theorems listed there)*
+| Name | Description |
+|------|-------------|
+| `mem_prod_iff` | Characterizes membership in `A ×ᴹ B`. |
+| `mem_rng_iff` | Characterizes membership in `rng R`. |
+| `mem_inv_iff` | Characterizes membership in `R⁻¹`. |
+| `mem_comp_iff` | Characterizes membership in `S ∘ᴹ R`. |
+| `inv_inv` | Proves that `(R⁻¹)⁻¹ = R ∩ᴹ (𝐕ᴹ ×ᴹ 𝐕ᴹ)`. |
+| `inv_comp` | Proves that `(S ∘ᴹ R)⁻¹ = R⁻¹ ∘ᴹ S⁻¹`. |
+| `comp_assoc` | Proves associativity of composition `(T ∘ᴹ S) ∘ᴹ R = T ∘ᴹ (S ∘ᴹ R)`. |
 
 ---
 
 ## 5. Notations
 
-| Symbol | Expands to | Module | Variants |
-|--------|-----------|--------|---------|
-| `∃! x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` | untyped only |
-| `∃¹ x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` | `∃¹ x`, `∃¹ (x)`, `∃¹ (x : T)`, `∃¹ x : T` |
-
-**Note**: `∃!` overrides Lean's built-in notation. Use `∃¹` to avoid any macro conflicts.
+| Symbol | Expands to | Module |
+|--------|-----------|--------|
+| `∃! x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` |
+| `∃¹ x, p` | `ExistsUnique (fun x => p)` | `Prelim.lean` |
+| `∈ᴹ` | `Mem` | `MKplusCACAxioms.lean` |
+| `⊆ᴹ` | `SubClass` | `MKplusCACAxioms.lean` |
+| `∪ᴹ` | `union` | `MKplusCACAxioms.lean` |
+| `∩ᴹ` | `inter` | `MKplusCACAxioms.lean` |
+| `∖ᴹ` | `sdiff` | `MKplusCACAxioms.lean` |
+| `△ᴹ` | `symmDiff` | `MKplusCACAxioms.lean` |
+| `×ᴹ` | `prod` | `Relations.lean` |
+| `⁻¹` | `inv` | `Relations.lean` |
+| `∘ᴹ` | `comp` | `Relations.lean` |
 
 ---
 
 ## 6. Exports
 
-### 6.1 Prelim.lean
-
-All names are top-level (no namespace), accessible wherever `Prelim.lean` is imported:
+### 6.1 Relations.lean
 
 ```lean
 -- Definitions
-ExistsUnique                -- Prop-valued predicate
+prod
+rng
+inv
+comp
+IsRel
+ReflexiveOn
+Symmetric
+Transitive
+EquivalenceOn
+Antisymmetric
+PartialOrderOn
+TotalOrderOn
 
--- Notation
-∃! x, p                    -- unique existence (overrides built-in)
-∃¹ x, p                    -- unique existence (safe, 4 variants)
-
--- Dot-notation API
-ExistsUnique.intro
-ExistsUnique.exists
-ExistsUnique.choose         -- noncomputable
-ExistsUnique.choose_spec
-ExistsUnique.unique
-
--- Peano-compatible aliases
-choose_unique               -- noncomputable
-choose_spec_unique
-choose_uniq
+-- Theorems
+mem_prod_iff
+mem_rng_iff
+mem_inv_iff
+mem_comp_iff
+inv_inv
+inv_comp
+comp_assoc
 ```
 
 ---
@@ -172,7 +163,9 @@ choose_uniq
 
 ### 7.1 Fully Projected Files
 
-- `Prelim.lean` — ExistsUnique complete (1 def + 5 theorems/defs + 3 aliases + 2 notations)
+- `Prelim.lean`
+- `MKplusCACAxioms.lean`
+- `Relations.lean`
 
 ### 7.2 Partially Projected Files
 
