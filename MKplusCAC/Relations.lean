@@ -113,14 +113,32 @@ def Antisymmetric (R : Class) : Prop :=
   IsRel R ∧ (∀ x y : Class, IsSet x → IsSet y →
     ⟪x, y⟫ ∈ᴹ R → ⟪y, x⟫ ∈ᴹ R → x = y)
 
+-- Preorden en A
+def PreorderOn (R A : Class) : Prop :=
+  ReflexiveOn R A ∧ Transitive R
+
 -- Orden parcial en A
 def PartialOrderOn (R A : Class) : Prop :=
-  ReflexiveOn R A ∧ Antisymmetric R ∧ Transitive R
+  PreorderOn R A ∧ Antisymmetric R
 
 -- Orden total (lineal) en A
 def TotalOrderOn (R A : Class) : Prop :=
   PartialOrderOn R A ∧
   (∀ x y : Class, IsSet x → IsSet y → x ∈ᴹ A → y ∈ᴹ A →
+    ⟪x, y⟫ ∈ᴹ R ∨ ⟪y, x⟫ ∈ᴹ R)
+
+-- Irreflexividad en A
+def IrreflexiveOn (R A : Class) : Prop :=
+  IsRel R ∧ (∀ x : Class, IsSet x → x ∈ᴹ A → ⟪x, x⟫ ∉ᴹ R)
+
+-- Orden estricto parcial en A
+def StrictPartialOrderOn (R A : Class) : Prop :=
+  IrreflexiveOn R A ∧ Transitive R
+
+-- Orden estricto total en A
+def StrictTotalOrderOn (R A : Class) : Prop :=
+  StrictPartialOrderOn R A ∧
+  (∀ x y : Class, IsSet x → IsSet y → x ∈ᴹ A → y ∈ᴹ A → x ≠ y →
     ⟪x, y⟫ ∈ᴹ R ∨ ⟪y, x⟫ ∈ᴹ R)
 
 -- ============================================================
