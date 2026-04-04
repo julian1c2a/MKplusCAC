@@ -1,20 +1,16 @@
 # Dependency Diagram — MKplusCAC
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-04-04 00:00
+**Author**: Julián Calderón Almendros
 
 ## Project Structure
 
-```
+```text
 MKplusCAC/
-├── Prelim.lean         # Preliminary definitions
-├── _template.lean      # Module template (not imported)
-├── Core/               # (subdirectory example)
-│   └── Basic.lean
-└── Topic/              # (subdirectory example)
-    ├── Basic.lean
-    └── Advanced.lean
-MKplusCAC.lean        # Root module
+├── Prelim.lean              # Preliminary definitions
+├── _template.lean           # Module template (not imported)
+├── MKplusCACAxioms.lean     # Core axioms
+└── MKplusCAC.lean           # Root module
 ```
 
 ## Dependency Graph
@@ -22,88 +18,75 @@ MKplusCAC.lean        # Root module
 ```mermaid
 graph TD
     P[Prelim.lean]
+    A[MKplusCACAxioms.lean]
+    
+    A --> P
     Z[MKplusCAC.lean] --> P
-```
-
-*(Update this diagram as modules are added. Use subdirectory grouping:)*
-
-```mermaid
-graph TD
-    subgraph Core
-        CB[Core.Basic]
-    end
-    subgraph Topic
-        TB[Topic.Basic]
-        TA[Topic.Advanced]
-    end
-    P[Prelim.lean]
-    CB --> P
-    TB --> P
-    TB --> CB
-    TA --> TB
-    Z[MKplusCAC.lean] --> P
-    Z --> CB
-    Z --> TB
-    Z --> TA
+    Z --> A
 ```
 
 ## Namespace Hierarchy
 
 ### 1. **MKplusCAC** (root)
-
 ```lean
 -- MKplusCAC.lean imports all modules
 ```
 
 ### 2. **MKplusCAC.Prelim**
-
 ```lean
 namespace MKplusCAC.Prelim
-  -- Preliminary definitions
+  -- Preliminary definitions (ExistsUnique, etc.)
 ```
 
-*(Add sub-namespaces as subdirectories are created)*
+### 3. **MKplusCAC.MKplusCACAxioms**
+```lean
+namespace MKplusCAC.MKplusCACAxioms
+  -- Morse-Kelley Axioms + CAC
+```
 
 ## Dependencies by Level
 
 ### Level 0: Foundations
-
 - `Prelim.lean` — no dependencies
 
-### Level 1: Core
-
-- *(modules that depend only on Prelim)*
-
-### Level 2: Derived
-
-- *(modules that depend on Level 1)*
+### Level 1: Core Axioms
+- `MKplusCACAxioms.lean` — depends on `Prelim.lean`
 
 ### Level N: Root
-
 - `MKplusCAC.lean` — imports all modules
 
 ## Exports by Module
 
 ### Prelim.lean
-
 ```lean
 export MKplusCAC.Prelim (
-  -- exported names here
+  ExistsUnique
+  choose_unique
+  choose_spec_unique
+  choose_uniq
+)
+```
+
+### MKplusCACAxioms.lean
+```lean
+export MKplusCAC.MKplusCACAxioms (
+  -- Core definitions: IsSet, SubClass, IsClassFun, etc.
+  -- Axioms: MK_Ext, MK_Pair, MK_Union, MK_CAC, etc.
 )
 ```
 
 ## Design Notes
 
-1. **Separation of concerns**: each module handles one aspect
-2. **Minimal dependencies**: only import what is strictly needed
-3. **Selective exports**: only public definitions and theorems are exported
-4. **No Mathlib** (unless explicitly required — add to lakefile.lean)
-5. **One namespace per module**: mirrors file path (see ADR-005)
+1. **Separation of concerns**: Each module handles one aspect.
+2. **Minimal dependencies**: Only import what is strictly needed.
+3. **Selective exports**: Only public definitions and theorems are exported.
+4. **No Mathlib**: The project is entirely standalone (unless explicitly required in `lakefile.lean`).
+5. **One namespace per module**: Mirrors file path (see `DECISIONS.md`).
 
 ## Verification Commands
 
 ```bash
-make build          # build full project
-make sorry          # check for sorry
-make status         # lock status + sorry
+make build          # Build full project
+make sorry          # Check for sorry
+make status         # Show locked files and sorry status
 ```

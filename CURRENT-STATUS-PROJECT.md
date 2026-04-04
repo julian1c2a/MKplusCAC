@@ -1,7 +1,7 @@
 # Current Project Status — MKplusCAC
 
-**Last updated:** 2025-01-01 00:00
-**Author**: Your Name
+**Last updated:** 2026-04-04 00:00
+**Author**: Julián Calderón Almendros
 
 ---
 
@@ -9,11 +9,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Total modules | 1 |
-| Modules with 0 sorry | 0 / 1 |
-| Total theorems proven | 0 |
-| Total definitions | 0 |
-| Total notations | 0 |
+| Total modules | 2 |
+| Modules with 0 sorry | 1 / 2 |
+| Total theorems proven | ~60 |
+| Total definitions | ~5 |
+| Total notations | ~3 |
 | Build status | ✅ Passing |
 | Lean version | v4.28.0 |
 | Naming convention | Mathlib-style (see NAMING-CONVENTIONS.md) |
@@ -24,7 +24,8 @@
 
 | Module | Theorems | Definitions | Sorry | Status |
 |--------|----------|-------------|-------|--------|
-| `Prelim.lean` | 0 | 0 | 0 | 🔄 In progress |
+| `Prelim.lean` | 7 | 1 | 0 | 🧊 Frozen (Locked) |
+| `MKplusCACAxioms.lean` | ~55 | 3 | 1 | 🔄 In progress (Locked) |
 
 *Status codes*: ✅ Complete · 🧊 Frozen · 🔶 Partial · 🔄 In progress · ❌ Pending
 
@@ -32,24 +33,25 @@
 
 ## Recent Achievements
 
-- Project initialized from lean4-project-template
+- Project renamed and migrated to the latest `lean4-project-template` structure.
+- `Prelim.lean` and `MKplusCACAxioms.lean` successfully ported and compiling.
 
 ---
 
 ## Pending Work
 
-- [ ] Define `Prelim.lean` content
-- [ ] Add first proof modules
-- [ ] Design module dependency hierarchy
+- [ ] Resolver el `sorry` pendiente en `MKplusCACAxioms.lean`.
+- [ ] Auditar y refactorizar nombres según `NAMING-CONVENTIONS.md` (Phase 3).
+- [ ] Desarrollar los siguientes módulos lógicos derivados de los axiomas.
 
 ---
 
 ## Architecture
 
-```
+```text
 MKplusCAC/
-├── Prelim.lean              # Level 0: foundations
-└── (subdirectories as project grows)
+├── Prelim.lean              # Level 0: Foundations (ExistsUnique)
+└── MKplusCACAxioms.lean     # Level 1: Morse-Kelley set theory + CAC axioms
 ```
 
 ---
@@ -58,10 +60,10 @@ MKplusCAC/
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 1: Foundations | `Prelim.lean` + core definitions | 🔄 In progress |
-| Phase 2: First modules | Core theorems and constructions | ❌ Pending |
-| Phase 3: Naming migration | Adopt Mathlib naming conventions | ❌ Pending |
-| Phase 4: Annotations | Add @importance/@axiom_system metadata | ❌ Pending |
+| Phase 1: Foundations | `Prelim.lean` + core definitions | ✅ Complete |
+| Phase 2: Core Axioms | `MKplusCACAxioms.lean` | 🔄 In progress |
+| Phase 3: Naming Migration | Adopt Mathlib naming conventions | ❌ Pending |
+| Phase 4: First Derived Modules | Core theorems and constructions | ❌ Pending |
 
 > See [NEXT-STEPS.md](NEXT-STEPS.md) for detailed phase planning.
 
@@ -69,15 +71,13 @@ MKplusCAC/
 
 ## Next Steps
 
-1. Define core preliminary infrastructure in `Prelim.lean`
-2. Design module dependency hierarchy
-3. Lock `Prelim.lean` once complete
+1. Rename definitions and theorems in existing modules to match standard Mathlib conventions.
+2. Complete the remaining proofs (sorrys) in `MKplusCACAxioms.lean`.
+3. Plan the structure for the next modules (e.g., relations, functions, ordinals).
 
 ---
 
-**Author**: Your Name
-*Last updated: 2025-01-01 00:00*
-
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+**Author**: Julián Calderón Almendros
+*Last updated: 2026-04-04 00:00*
 
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
