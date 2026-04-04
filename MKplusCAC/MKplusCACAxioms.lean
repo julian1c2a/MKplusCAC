@@ -26,7 +26,7 @@ License: MIT
     · `Mem : Class → Class → Prop` as the primitive membership relation.
     · `IsSet : Class → Prop` defined from membership (see §1).
     · Ordered pairs ⟪x, y⟫ are a *defined* notion (Kuratowski or Morse).
-    · All axioms are stated as `axiom` declarations — left `sorry`-free
+    · All axioms are stated as `axiom` declarations — left without unresolved proofs
       by design; concrete proofs will live in separate modules.
 -/
 
@@ -78,7 +78,7 @@ def SubClass (X Y : Class) : Prop := ∀ u : Class, (u ∈ᴹ X) → (u ∈ᴹ Y
 local infix:50 " ⊆ᴹ " => SubClass
 
 -- Todo miembro de una clase es un set (directo de la definición de IsSet).
-theorem mem_isSet {u X : Class} (h : u ∈ᴹ X) : IsSet u := ⟨X, h⟩
+theorem isSet_of_mem {u X : Class} (h : u ∈ᴹ X) : IsSet u := ⟨X, h⟩
 
 
 /-! ─────────────────────────────────────────────────────────────────────────
@@ -120,46 +120,46 @@ axiom MK_Pair :
 -/
 
 -- Par no ordenado {x, y}: testigo de A3.
-noncomputable def UPair (x y : Class) (hx : IsSet x) (hy : IsSet y) : Class :=
+noncomputable def uPairCore (x y : Class) (hx : IsSet x) (hy : IsSet y) : Class :=
   Classical.choose (MK_Pair x y hx hy)
 
-theorem UPair_isSet {x y : Class} (hx : IsSet x) (hy : IsSet y) :
-    IsSet (UPair x y hx hy) :=
+theorem isSet_uPairCore {x y : Class} (hx : IsSet x) (hy : IsSet y) :
+    IsSet (uPairCore x y hx hy) :=
   (Classical.choose_spec (MK_Pair x y hx hy)).1
 
-theorem UPair_mem {x y : Class} (hx : IsSet x) (hy : IsSet y) (u : Class) :
-    (u ∈ᴹ UPair x y hx hy) ↔ (u = x ∨ u = y) :=
+theorem mem_uPairCore_iff {x y : Class} (hx : IsSet x) (hy : IsSet y) (u : Class) :
+    (u ∈ᴹ uPairCore x y hx hy) ↔ (u = x ∨ u = y) :=
   (Classical.choose_spec (MK_Pair x y hx hy)).2 u
 
 -- Singleton {x} := {x, x}.
-noncomputable def Sing (x : Class) (hx : IsSet x) : Class := UPair x x hx hx
+noncomputable def singCore (x : Class) (hx : IsSet x) : Class := uPairCore x x hx hx
 
-theorem Sing_isSet {x : Class} (hx : IsSet x) : IsSet (Sing x hx) :=
-  UPair_isSet hx hx
+theorem isSet_singCore {x : Class} (hx : IsSet x) : IsSet (singCore x hx) :=
+  isSet_uPairCore hx hx
 
-theorem Sing_mem {x : Class} (hx : IsSet x) (u : Class) :
-    (u ∈ᴹ Sing x hx) ↔ (u = x) := by
-  simp [Sing, UPair_mem hx hx]
+theorem mem_singCore_iff {x : Class} (hx : IsSet x) (u : Class) :
+    (u ∈ᴹ singCore x hx) ↔ (u = x) := by
+  simp [singCore, mem_uPairCore_iff hx hx]
 
 -- Singleton es inyectivo.
-theorem Sing_inj {x x' : Class} (hx : IsSet x) (hx' : IsSet x')
-    (h : Sing x hx = Sing x' hx') : x = x' :=
-  (Sing_mem hx' x).mp (h ▸ (Sing_mem hx x).mpr rfl)
+theorem singCore_inj {x x' : Class} (hx : IsSet x) (hx' : IsSet x')
+    (h : singCore x hx = singCore x' hx') : x = x' :=
+  (mem_singCore_iff hx' x).mp (h ▸ (mem_singCore_iff hx x).mpr rfl)
 
 -- Igualdad de pares no ordenados implica igualdad de componentes (en algún orden).
-theorem UPair_cases {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
+theorem uPairCore_cases {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
     (hx' : IsSet x') (hy' : IsSet y')
-    (h : UPair x y hx hy = UPair x' y' hx' hy') :
+    (h : uPairCore x y hx hy = uPairCore x' y' hx' hy') :
     (x = x' ∧ y = y') ∨ (x = y' ∧ y = x') := by
   -- Extraemos presencia de x e y en el par derecho
-  have hx_in := (UPair_mem hx' hy' x).mp (h ▸ (UPair_mem hx hy x).mpr (Or.inl rfl))
-  have hy_in := (UPair_mem hx' hy' y).mp (h ▸ (UPair_mem hx hy y).mpr (Or.inr rfl))
+  have hx_in := (mem_uPairCore_iff hx' hy' x).mp (h ▸ (mem_uPairCore_iff hx hy x).mpr (Or.inl rfl))
+  have hy_in := (mem_uPairCore_iff hx' hy' y).mp (h ▸ (mem_uPairCore_iff hx hy y).mpr (Or.inr rfl))
   rcases hx_in with hxx' | hxy'
   · -- x = x'
     rcases hy_in with hyx' | hyy'
     · -- y = x'; determinamos y' desde el par izquierdo
-      have hy'_in := (UPair_mem hx hy y').mp
-        (h.symm ▸ (UPair_mem hx' hy' y').mpr (Or.inr rfl))
+      have hy'_in := (mem_uPairCore_iff hx hy y').mp
+        (h.symm ▸ (mem_uPairCore_iff hx' hy' y').mpr (Or.inr rfl))
       rcases hy'_in with hy'x | hy'y
       · exact Or.inl ⟨hxx', hyx'.trans (hxx'.symm.trans hy'x.symm)⟩
       · exact Or.inl ⟨hxx', hy'y.symm⟩
@@ -168,39 +168,39 @@ theorem UPair_cases {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
     rcases hy_in with hyx' | hyy'
     · exact Or.inr ⟨hxy', hyx'⟩
     · -- x = y', y = y'; determinamos x' desde el par izquierdo
-      have hx'_in := (UPair_mem hx hy x').mp
-        (h.symm ▸ (UPair_mem hx' hy' x').mpr (Or.inl rfl))
+      have hx'_in := (mem_uPairCore_iff hx hy x').mp
+        (h.symm ▸ (mem_uPairCore_iff hx' hy' x').mpr (Or.inl rfl))
       rcases hx'_in with hx'x | hx'y
       · exact Or.inl ⟨hx'x.symm, hyy'⟩
       · exact Or.inr ⟨hxy', hx'y.symm⟩
 
 -- Par de Kuratowski: ⟪x, y⟫ := {{x}, {x, y}}.
-noncomputable def OPair (x y : Class) (hx : IsSet x) (hy : IsSet y) : Class :=
-  UPair (Sing x hx) (UPair x y hx hy) (Sing_isSet hx) (UPair_isSet hx hy)
+noncomputable def opairCore (x y : Class) (hx : IsSet x) (hy : IsSet y) : Class :=
+  uPairCore (singCore x hx) (uPairCore x y hx hy) (isSet_singCore hx) (isSet_uPairCore hx hy)
 
 -- Inyectividad del par de Kuratowski.
-theorem OPair_inj {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
+theorem opairCore_inj {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
     (hx' : IsSet x') (hy' : IsSet y')
-    (h : OPair x y hx hy = OPair x' y' hx' hy') : x = x' ∧ y = y' := by
-  rcases UPair_cases (Sing_isSet hx) (UPair_isSet hx hy)
-                     (Sing_isSet hx') (UPair_isSet hx' hy') h with
+    (h : opairCore x y hx hy = opairCore x' y' hx' hy') : x = x' ∧ y = y' := by
+  rcases uPairCore_cases (isSet_singCore hx) (isSet_uPairCore hx hy)
+                     (isSet_singCore hx') (isSet_uPairCore hx' hy') h with
     ⟨hSS', hPP'⟩ | ⟨hSP', hPS'⟩
-  · -- Sing x = Sing x'  ∧  UPair x y = UPair x' y'
-    have hxx' := Sing_inj hx hx' hSS'
-    rcases UPair_cases hx hy hx' hy' hPP' with ⟨_, hyy'⟩ | ⟨hxy', hyx'⟩
+  · -- singCore x = singCore x'  ∧  uPairCore x y = uPairCore x' y'
+    have hxx' := singCore_inj hx hx' hSS'
+    rcases uPairCore_cases hx hy hx' hy' hPP' with ⟨_, hyy'⟩ | ⟨hxy', hyx'⟩
     · exact ⟨hxx', hyy'⟩
     · -- x = y', y = x'; con x = x': y = x' = x = y'
       exact ⟨hxx', hyx'.trans (hxx'.symm.trans hxy')⟩
-  · -- Sing x = UPair x' y'  ∧  UPair x y = Sing x'
+  · -- singCore x = uPairCore x' y'  ∧  uPairCore x y = singCore x'
     have hx'x : x' = x := by
-      have h1 : x' ∈ᴹ UPair x' y' hx' hy' := (UPair_mem hx' hy' x').mpr (Or.inl rfl)
-      rw [← hSP'] at h1; exact (Sing_mem hx x').mp h1
+      have h1 : x' ∈ᴹ uPairCore x' y' hx' hy' := (mem_uPairCore_iff hx' hy' x').mpr (Or.inl rfl)
+      rw [← hSP'] at h1; exact (mem_singCore_iff hx x').mp h1
     have hy'x : y' = x := by
-      have h1 : y' ∈ᴹ UPair x' y' hx' hy' := (UPair_mem hx' hy' y').mpr (Or.inr rfl)
-      rw [← hSP'] at h1; exact (Sing_mem hx y').mp h1
+      have h1 : y' ∈ᴹ uPairCore x' y' hx' hy' := (mem_uPairCore_iff hx' hy' y').mpr (Or.inr rfl)
+      rw [← hSP'] at h1; exact (mem_singCore_iff hx y').mp h1
     have hyx' : y = x' := by
-      have h1 : y ∈ᴹ UPair x y hx hy := (UPair_mem hx hy y).mpr (Or.inr rfl)
-      rw [hPS'] at h1; exact (Sing_mem hx' y).mp h1
+      have h1 : y ∈ᴹ uPairCore x y hx hy := (mem_uPairCore_iff hx hy y).mpr (Or.inr rfl)
+      rw [hPS'] at h1; exact (mem_singCore_iff hx' y).mp h1
     -- x = x' y y = y' (via y = x' = x = y')
     exact ⟨hx'x.symm, hyx'.trans (hx'x.trans hy'x.symm)⟩
 
@@ -240,33 +240,33 @@ axiom MK_Inf :
 noncomputable instance : Nonempty Class :=
   let ⟨x, _, _⟩ := MK_Inf; ⟨x⟩
 
--- Par ordenado total: igual a OPair cuando x, y son sets;
+-- Par ordenado total: igual a opairCore cuando x, y son sets;
 -- valor arbitrario (junk) en caso contrario.
 noncomputable def opair (x y : Class) : Class :=
   if hx : IsSet x then
-    if hy : IsSet y then OPair x y hx hy
+    if hy : IsSet y then opairCore x y hx hy
     else Classical.choice inferInstance
   else Classical.choice inferInstance
 
--- Lema de reducción: bajo IsSet, opair coincide con OPair.
-theorem opair_eq {x y : Class} (hx : IsSet x) (hy : IsSet y) :
-    opair x y = OPair x y hx hy := by
+-- Lema de reducción: bajo IsSet, opair coincide con opairCore.
+theorem opair_eq_opairCore {x y : Class} (hx : IsSet x) (hy : IsSet y) :
+    opair x y = opairCore x y hx hy := by
   simp [opair, hx, hy]
 
 local notation "⟪" x ", " y "⟫" => opair x y
 
 -- El par ordenado de dos sets es un set.
-theorem opair_isSet {x y : Class} (hx : IsSet x) (hy : IsSet y) :
+theorem isSet_opair {x y : Class} (hx : IsSet x) (hy : IsSet y) :
     IsSet (⟪x, y⟫) := by
-  rw [opair_eq hx hy]
-  exact UPair_isSet (Sing_isSet hx) (UPair_isSet hx hy)
+  rw [opair_eq_opairCore hx hy]
+  exact isSet_uPairCore (isSet_singCore hx) (isSet_uPairCore hx hy)
 
--- Inyectividad del par ordenado total (corolario de OPair_inj).
+-- Inyectividad del par ordenado total (corolario de opairCore_inj).
 theorem opair_inj {x y x' y' : Class} (hx : IsSet x) (hy : IsSet y)
     (hx' : IsSet x') (hy' : IsSet y')
     (h : ⟪x, y⟫ = ⟪x', y'⟫) : x = x' ∧ y = y' := by
-  rw [opair_eq hx hy, opair_eq hx' hy'] at h
-  exact OPair_inj hx hy hx' hy' h
+  rw [opair_eq_opairCore hx hy, opair_eq_opairCore hx' hy'] at h
+  exact opairCore_inj hx hy hx' hy' h
 
 -- F es una clase-función (cada componente izquierda tiene exactamente una derecha).
 def IsClassFun (F : Class) : Prop :=
@@ -308,28 +308,28 @@ macro "{|" x:ident " ∈ᴹ " X:term " | " p:term " |}" : term =>
 
 -- ⋃ᴹ X := {u | ∃ v, u ∈ᴹ v ∧ v ∈ᴹ X}
 -- Existe siempre como clase; es set cuando X es set (MK_Union).
-noncomputable def ClassUnion (X : Class) : Class :=
+noncomputable def sUnion (X : Class) : Class :=
   {| u | ∃ v, u ∈ᴹ v ∧ v ∈ᴹ X |}
 
-local prefix:110 "⋃ᴹ " => ClassUnion
+local prefix:110 "⋃ᴹ " => sUnion
 
 -- Caracterización de la membresía en ⋃ᴹ X.
-theorem classunion_mem (X u : Class) :
+theorem mem_sUnion_iff (X u : Class) :
     u ∈ᴹ ⋃ᴹ X ↔ IsSet u ∧ ∃ v, u ∈ᴹ v ∧ v ∈ᴹ X :=
   classComp_mem _ u
 
 -- Versión simplificada: cuando u ya es set, IsSet u es automático.
-theorem classunion_mem' {X u : Class} (hu : IsSet u) :
+theorem mem_sUnion_iff' {X u : Class} (hu : IsSet u) :
     u ∈ᴹ ⋃ᴹ X ↔ ∃ v, u ∈ᴹ v ∧ v ∈ᴹ X := by
-  rw [classunion_mem]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
+  rw [mem_sUnion_iff]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
 
 -- La unión de un set es un set (consecuencia de MK_Union).
-theorem classunion_isSet {X : Class} (hX : IsSet X) : IsSet (⋃ᴹ X) := by
+theorem isSet_sUnion {X : Class} (hX : IsSet X) : IsSet (⋃ᴹ X) := by
   obtain ⟨z, hz_set, hz_mem⟩ := MK_Union X hX
   suffices h : ⋃ᴹ X = z by rw [h]; exact hz_set
   apply MK_Ext
   intro u hu
-  rw [classunion_mem]
+  rw [mem_sUnion_iff]
   constructor
   · rintro ⟨_, v, huv, hvX⟩
     exact (hz_mem u).mpr ⟨v, huv, hvX⟩
@@ -349,7 +349,7 @@ axiom MK_Repl :
 -- Si X es set, la comprensión acotada {| x ∈ᴹ X | φ x |} es set (vía MK_Repl).
 -- Estrategia: la función identidad F := {⟪u,u⟫ | u ∈ X ∧ φ u} es clase-función;
 -- su imagen sobre X coincide con {| x ∈ᴹ X | φ x |}, que por MK_Repl es set.
-theorem bounded_comp_isSet {X : Class} (hX : IsSet X) (φ : Class → Prop) :
+theorem isSet_sep {X : Class} (hX : IsSet X) (φ : Class → Prop) :
     IsSet {| x ∈ᴹ X | φ x |} := by
   -- Función identidad restringida a Z := {| x ∈ᴹ X | φ x |}
   let F : Class := {| p | ∃ u, IsSet u ∧ u ∈ᴹ X ∧ φ u ∧ p = ⟪u, u⟫ |}
@@ -373,7 +373,7 @@ theorem bounded_comp_isSet {X : Class} (hX : IsSet X) (φ : Class → Prop) :
   rw [classComp_mem, hz_mem]
   constructor
   · rintro ⟨_, huX, hφu⟩
-    exact ⟨u, huX, (hF_mem _).mpr ⟨opair_isSet hu hu, u, hu, huX, hφu, rfl⟩⟩
+    exact ⟨u, huX, (hF_mem _).mpr ⟨isSet_opair hu hu, u, hu, huX, hφu, rfl⟩⟩
   · rintro ⟨w, hwX, hwF⟩
     obtain ⟨_, v, hv, hvX, hφv, heq⟩ := (hF_mem _).mp hwF
     obtain ⟨_, huv⟩ := opair_inj ⟨X, hwX⟩ hu hv hv heq
@@ -382,95 +382,95 @@ theorem bounded_comp_isSet {X : Class} (hX : IsSet X) (φ : Class → Prop) :
 -- ── §1f · Operaciones binarias de clase ──────────────────────────────────
 
 -- ─ Unión binaria ──────────────────────────────────────────────────────────
-noncomputable def BinUnion (A B : Class) : Class := {| x | x ∈ᴹ A ∨ x ∈ᴹ B |}
+noncomputable def union (A B : Class) : Class := {| x | x ∈ᴹ A ∨ x ∈ᴹ B |}
 
-local infix:65 " ∪ᴹ " => BinUnion
+local infix:65 " ∪ᴹ " => union
 
-theorem binunion_mem (A B u : Class) :
+theorem mem_union_iff (A B u : Class) :
     u ∈ᴹ A ∪ᴹ B ↔ IsSet u ∧ (u ∈ᴹ A ∨ u ∈ᴹ B) :=
   classComp_mem _ u
 
-theorem binunion_mem' {A B u : Class} (hu : IsSet u) :
+theorem mem_union_iff' {A B u : Class} (hu : IsSet u) :
     u ∈ᴹ A ∪ᴹ B ↔ u ∈ᴹ A ∨ u ∈ᴹ B := by
-  rw [binunion_mem]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
+  rw [mem_union_iff]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
 
 -- A ∪ B es set cuando A y B son sets.
-theorem binunion_isSet {A B : Class} (hA : IsSet A) (hB : IsSet B) :
+theorem isSet_union {A B : Class} (hA : IsSet A) (hB : IsSet B) :
     IsSet (A ∪ᴹ B) := by
-  suffices h : A ∪ᴹ B = ⋃ᴹ (UPair A B hA hB) by
-    rw [h]; exact classunion_isSet (UPair_isSet hA hB)
+  suffices h : A ∪ᴹ B = ⋃ᴹ (uPairCore A B hA hB) by
+    rw [h]; exact isSet_sUnion (isSet_uPairCore hA hB)
   apply MK_Ext
   intro u hu
-  rw [binunion_mem' hu, classunion_mem' hu]
+  rw [mem_union_iff' hu, mem_sUnion_iff' hu]
   constructor
   · rintro (huA | huB)
-    · exact ⟨A, huA, (UPair_mem hA hB A).mpr (Or.inl rfl)⟩
-    · exact ⟨B, huB, (UPair_mem hA hB B).mpr (Or.inr rfl)⟩
+    · exact ⟨A, huA, (mem_uPairCore_iff hA hB A).mpr (Or.inl rfl)⟩
+    · exact ⟨B, huB, (mem_uPairCore_iff hA hB B).mpr (Or.inr rfl)⟩
   · rintro ⟨v, huv, hvAB⟩
-    rcases (UPair_mem hA hB v).mp hvAB with rfl | rfl
+    rcases (mem_uPairCore_iff hA hB v).mp hvAB with rfl | rfl
     · exact Or.inl huv
     · exact Or.inr huv
 
 -- ─ Intersección binaria ───────────────────────────────────────────────────
-noncomputable def BinInter (A B : Class) : Class := {| x | x ∈ᴹ A ∧ x ∈ᴹ B |}
+noncomputable def inter (A B : Class) : Class := {| x | x ∈ᴹ A ∧ x ∈ᴹ B |}
 
-local infix:70 " ∩ᴹ " => BinInter
+local infix:70 " ∩ᴹ " => inter
 
-theorem bininter_mem (A B u : Class) :
+theorem mem_inter_iff (A B u : Class) :
     u ∈ᴹ A ∩ᴹ B ↔ IsSet u ∧ u ∈ᴹ A ∧ u ∈ᴹ B :=
   classComp_mem _ u
 
-theorem bininter_mem' {A B u : Class} (hu : IsSet u) :
+theorem mem_inter_iff' {A B u : Class} (hu : IsSet u) :
     u ∈ᴹ A ∩ᴹ B ↔ u ∈ᴹ A ∧ u ∈ᴹ B := by
-  rw [bininter_mem]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
+  rw [mem_inter_iff]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
 
--- A ∩ B es set cuando A es set (subclase de A, por bounded_comp_isSet).
-theorem bininter_isSet_left {A B : Class} (hA : IsSet A) : IsSet (A ∩ᴹ B) :=
-  bounded_comp_isSet hA (fun x => x ∈ᴹ B)
+-- A ∩ B es set cuando A es set (subclase de A, por isSet_sep).
+theorem isSet_inter_left {A B : Class} (hA : IsSet A) : IsSet (A ∩ᴹ B) :=
+  isSet_sep hA (fun x => x ∈ᴹ B)
 
 -- Simétrico: A ∩ B es set cuando B es set.
-theorem bininter_isSet_right {A B : Class} (hB : IsSet B) : IsSet (A ∩ᴹ B) := by
+theorem isSet_inter_right {A B : Class} (hB : IsSet B) : IsSet (A ∩ᴹ B) := by
   suffices h : A ∩ᴹ B = B ∩ᴹ A by
-    rw [h]; exact bininter_isSet_left hB
+    rw [h]; exact isSet_inter_left hB
   apply MK_Ext; intro u hu
-  simp [bininter_mem' hu, And.comm]
+  simp [mem_inter_iff' hu, And.comm]
 
 -- ─ Diferencia de clases ───────────────────────────────────────────────────
-noncomputable def ClassDiff (A B : Class) : Class := {| x | x ∈ᴹ A ∧ x ∉ᴹ B |}
+noncomputable def sdiff (A B : Class) : Class := {| x | x ∈ᴹ A ∧ x ∉ᴹ B |}
 
-local infix:70 " ∖ᴹ " => ClassDiff
+local infix:70 " ∖ᴹ " => sdiff
 
-theorem classdiff_mem (A B u : Class) :
+theorem mem_sdiff_iff (A B u : Class) :
     u ∈ᴹ A ∖ᴹ B ↔ IsSet u ∧ u ∈ᴹ A ∧ u ∉ᴹ B :=
   classComp_mem _ u
 
-theorem classdiff_mem' {A B u : Class} (hu : IsSet u) :
+theorem mem_sdiff_iff' {A B u : Class} (hu : IsSet u) :
     u ∈ᴹ A ∖ᴹ B ↔ u ∈ᴹ A ∧ u ∉ᴹ B := by
-  rw [classdiff_mem]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
+  rw [mem_sdiff_iff]; exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hu, h⟩⟩
 
 -- A \ B es set cuando A es set.
-theorem classdiff_isSet {A B : Class} (hA : IsSet A) : IsSet (A ∖ᴹ B) :=
-  bounded_comp_isSet hA (fun x => x ∉ᴹ B)
+theorem isSet_sdiff {A B : Class} (hA : IsSet A) : IsSet (A ∖ᴹ B) :=
+  isSet_sep hA (fun x => x ∉ᴹ B)
 
 -- ─ Diferencia simétrica ───────────────────────────────────────────────────
-noncomputable def SymDiff (A B : Class) : Class := (A ∖ᴹ B) ∪ᴹ (B ∖ᴹ A)
+noncomputable def symmDiff (A B : Class) : Class := (A ∖ᴹ B) ∪ᴹ (B ∖ᴹ A)
 
-local infix:65 " △ᴹ " => SymDiff
+local infix:65 " △ᴹ " => symmDiff
 
 -- A △ B es set cuando A y B son sets.
-theorem symdiff_isSet {A B : Class} (hA : IsSet A) (hB : IsSet B) :
+theorem isSet_symmDiff {A B : Class} (hA : IsSet A) (hB : IsSet B) :
     IsSet (A △ᴹ B) :=
-  binunion_isSet (classdiff_isSet hA) (classdiff_isSet hB)
+  isSet_union (isSet_sdiff hA) (isSet_sdiff hB)
 
 -- ─ Complemento de clase ───────────────────────────────────────────────────
 -- ∁ᴹ A := {x : Set | x ∉ A}
 -- Es siempre una clase propia (salvo casos triviales).
 -- En particular: ∁ᴹ ∅ = V (la clase universal), que no es set.
-noncomputable def ClassCompl (A : Class) : Class := {| x | x ∉ᴹ A |}
+noncomputable def compl (A : Class) : Class := {| x | x ∉ᴹ A |}
 
-local prefix:110 "∁ᴹ " => ClassCompl
+local prefix:110 "∁ᴹ " => compl
 
-theorem classcompl_mem (A u : Class) :
+theorem mem_compl_iff (A u : Class) :
     u ∈ᴹ ∁ᴹ A ↔ IsSet u ∧ u ∉ᴹ A :=
   classComp_mem _ u
 
@@ -478,16 +478,16 @@ theorem classcompl_mem (A u : Class) :
 
 -- Singleton total: sing x = {x} si IsSet x; valor basura en caso contrario.
 noncomputable def sing (x : Class) : Class :=
-  if hx : IsSet x then Sing x hx else Classical.choice inferInstance
+  if hx : IsSet x then singCore x hx else Classical.choice inferInstance
 
-theorem sing_eq {x : Class} (hx : IsSet x) : sing x = Sing x hx :=
+theorem sing_eq_singCore {x : Class} (hx : IsSet x) : sing x = singCore x hx :=
   dif_pos hx
 
 theorem sing_isSet {x : Class} (hx : IsSet x) : IsSet (sing x) := by
-  rw [sing_eq hx]; exact Sing_isSet hx
+  rw [sing_eq_singCore hx]; exact isSet_singCore hx
 
 theorem sing_mem {x u : Class} (hx : IsSet x) : u ∈ᴹ sing x ↔ u = x := by
-  rw [sing_eq hx]; exact Sing_mem hx u
+  rw [sing_eq_singCore hx]; exact mem_singCore_iff hx u
 
 -- Notación de enumeración finita: {| x₁, x₂, ..., xₙ |}
 -- Separador ","  (distinto del separador "|" de la comprensión {| x | φ |}).
@@ -501,7 +501,7 @@ macro_rules
 -- isSet: {| x₁, ..., xₙ |} es set ⟺ cada xᵢ es set.
 -- Construcción composicional:
 --   n = 1 : sing_isSet hx
---   n ≥ 2 : binunion_isSet (sing_isSet hx₁) (binunion_isSet (sing_isSet hx₂) ...)
+--   n ≥ 2 : isSet_union (sing_isSet hx₁) (isSet_union (sing_isSet hx₂) ...)
 -- Caso base (azúcar para n = 1):
 theorem finiteset_isSet₁ {x : Class} (hx : IsSet x) :
     IsSet {| x |} :=
@@ -510,70 +510,70 @@ theorem finiteset_isSet₁ {x : Class} (hx : IsSet x) :
 -- ── §1h · Clases derivadas esenciales ────────────────────────────────────
 
 -- ─ Clase vacía ────────────────────────────────────────────────────────────
-noncomputable def Empty : Class := classComp (fun _ => False)
+noncomputable def empty : Class := classComp (fun _ => False)
 
-local notation "∅ᴹ" => Empty
+local notation "∅ᴹ" => empty
 
-theorem empty_mem (u : Class) : u ∉ᴹ ∅ᴹ :=
+theorem not_mem_empty (u : Class) : u ∉ᴹ ∅ᴹ :=
   fun h => ((classComp_mem _ u).mp h).2
 
 -- ∅ᴹ es set: coincide con el vacío garantizado por MK_Inf.
-theorem empty_isSet : IsSet ∅ᴹ := by
+theorem isSet_empty : IsSet ∅ᴹ := by
   obtain ⟨_, _, ⟨e, he_set, he_empty, _⟩, _⟩ := MK_Inf
   suffices h : ∅ᴹ = e by rw [h]; exact he_set
   apply MK_Ext; intro u _
-  exact ⟨fun h => (empty_mem u h).elim, fun h => (he_empty u h).elim⟩
+  exact ⟨fun h => (not_mem_empty u h).elim, fun h => (he_empty u h).elim⟩
 
 -- ─ Clase universal ────────────────────────────────────────────────────────
 -- 𝐕ᴹ := {x : Set | True} — contiene exactamente todos los sets.
 -- Es clase propia: si fuera set, se contendría a sí misma (contradice Foundation).
-noncomputable def ClassV : Class := classComp (fun _ => True)
+noncomputable def univ : Class := classComp (fun _ => True)
 
-local notation "𝐕ᴹ" => ClassV
+local notation "𝐕ᴹ" => univ
 
-theorem classV_mem (u : Class) : u ∈ᴹ 𝐕ᴹ ↔ IsSet u :=
+theorem mem_univ_iff (u : Class) : u ∈ᴹ 𝐕ᴹ ↔ IsSet u :=
   ⟨fun h => ((classComp_mem _ u).mp h).1,
    fun h => (classComp_mem _ u).mpr ⟨h, trivial⟩⟩
 
 -- ─ Clase potencia ─────────────────────────────────────────────────────────
-noncomputable def PowerClass (X : Class) : Class := {| u | u ⊆ᴹ X |}
+noncomputable def powerset (X : Class) : Class := {| u | u ⊆ᴹ X |}
 
-local prefix:110 "𝒫ᴹ " => PowerClass
+local prefix:110 "𝒫ᴹ " => powerset
 
-theorem powclass_mem (X u : Class) :
+theorem mem_powerset_iff (X u : Class) :
     u ∈ᴹ 𝒫ᴹ X ↔ IsSet u ∧ u ⊆ᴹ X :=
   classComp_mem _ u
 
 -- 𝒫ᴹ X es set cuando X es set (consecuencia de MK_Pow).
-theorem powclass_isSet {X : Class} (hX : IsSet X) : IsSet (𝒫ᴹ X) := by
+theorem isSet_powerset {X : Class} (hX : IsSet X) : IsSet (𝒫ᴹ X) := by
   obtain ⟨z, hz_set, hz_mem⟩ := MK_Pow X hX
   suffices h : 𝒫ᴹ X = z by rw [h]; exact hz_set
   apply MK_Ext; intro u _
-  rw [powclass_mem, hz_mem]
+  rw [mem_powerset_iff, hz_mem]
   exact Iff.rfl
 
 -- ─ Dominio de una clase ───────────────────────────────────────────────────
-noncomputable def Dom (F : Class) : Class := {| x | ∃ y, ⟪x, y⟫ ∈ᴹ F |}
+noncomputable def dom (F : Class) : Class := {| x | ∃ y, ⟪x, y⟫ ∈ᴹ F |}
 
-theorem dom_mem (F x : Class) :
-    x ∈ᴹ Dom F ↔ IsSet x ∧ ∃ y, ⟪x, y⟫ ∈ᴹ F :=
+theorem mem_dom_iff (F x : Class) :
+    x ∈ᴹ dom F ↔ IsSet x ∧ ∃ y, ⟪x, y⟫ ∈ᴹ F :=
   classComp_mem _ x
 
 -- ─ Imagen de un conjunto bajo una clase ──────────────────────────────────
-noncomputable def Img (F x : Class) : Class :=
+noncomputable def image (F x : Class) : Class :=
   {| y | ∃ u, u ∈ᴹ x ∧ ⟪u, y⟫ ∈ᴹ F |}
 
-theorem img_mem (F x v : Class) :
-    v ∈ᴹ Img F x ↔ IsSet v ∧ ∃ u, u ∈ᴹ x ∧ ⟪u, v⟫ ∈ᴹ F :=
+theorem mem_image_iff (F x v : Class) :
+    v ∈ᴹ image F x ↔ IsSet v ∧ ∃ u, u ∈ᴹ x ∧ ⟪u, v⟫ ∈ᴹ F :=
   classComp_mem _ v
 
--- Img F x es set cuando x es set e IsClassFun F (consecuencia de MK_Repl).
-theorem img_isSet {F x : Class} (hx : IsSet x) (hF : IsClassFun F) :
-    IsSet (Img F x) := by
+-- image F x es set cuando x es set e IsClassFun F (consecuencia de MK_Repl).
+theorem isSet_image {F x : Class} (hx : IsSet x) (hF : IsClassFun F) :
+    IsSet (image F x) := by
   obtain ⟨z, hz_set, hz_mem⟩ := MK_Repl F x hx hF
-  suffices h : Img F x = z by rw [h]; exact hz_set
+  suffices h : image F x = z by rw [h]; exact hz_set
   apply MK_Ext; intro v hv
-  rw [img_mem, hz_mem]
+  rw [mem_image_iff, hz_mem]
   exact ⟨fun ⟨_, u, huX, huvF⟩ => ⟨u, huX, huvF⟩,
          fun ⟨u, huX, huvF⟩ => ⟨hv, u, huX, huvF⟩⟩
 
@@ -582,121 +582,121 @@ theorem img_isSet {F x : Class} (hx : IsSet x) (hF : IsClassFun F) :
 -- ─ Helpers de membresía ───────────────────────────────────────────────────
 
 -- ∅ᴹ tiene membresía equivalente a False.
-theorem empty_mem_iff (u : Class) : u ∈ᴹ ∅ᴹ ↔ False :=
-  ⟨empty_mem u, False.elim⟩
+theorem mem_empty_iff (u : Class) : u ∈ᴹ ∅ᴹ ↔ False :=
+  ⟨not_mem_empty u, False.elim⟩
 
 -- Complemento simplificado: IsSet u ya disponible.
-theorem classcompl_mem' {A u : Class} (hu : IsSet u) :
+theorem mem_compl_iff' {A u : Class} (hu : IsSet u) :
     u ∈ᴹ ∁ᴹ A ↔ u ∉ᴹ A :=
-  ⟨fun h => ((classcompl_mem A u).mp h).2,
-   fun h => (classcompl_mem A u).mpr ⟨hu, h⟩⟩
+  ⟨fun h => ((mem_compl_iff A u).mp h).2,
+   fun h => (mem_compl_iff A u).mpr ⟨hu, h⟩⟩
 
 -- IsSet X ↔ X ∈ᴹ 𝐕ᴹ.
-theorem isSet_iff_mem_V {X : Class} : IsSet X ↔ X ∈ᴹ 𝐕ᴹ :=
-  (classV_mem X).symm
+theorem isSet_iff_mem_univ {X : Class} : IsSet X ↔ X ∈ᴹ 𝐕ᴹ :=
+  (mem_univ_iff X).symm
 
 -- ─ SubClass ───────────────────────────────────────────────────────────────
 
-theorem subclass_refl (A : Class) : A ⊆ᴹ A :=
+theorem subset_refl (A : Class) : A ⊆ᴹ A :=
   fun _ h => h
 
-theorem subclass_trans {A B C : Class} (h1 : A ⊆ᴹ B) (h2 : B ⊆ᴹ C) : A ⊆ᴹ C :=
+theorem subset_trans {A B C : Class} (h1 : A ⊆ᴹ B) (h2 : B ⊆ᴹ C) : A ⊆ᴹ C :=
   fun u h => h2 u (h1 u h)
 
-theorem subclass_antisymm {A B : Class} (h1 : A ⊆ᴹ B) (h2 : B ⊆ᴹ A) : A = B :=
+theorem subset_antisymm {A B : Class} (h1 : A ⊆ᴹ B) (h2 : B ⊆ᴹ A) : A = B :=
   MK_Ext A B fun u _ => ⟨h1 u, h2 u⟩
 
-theorem empty_subclass (A : Class) : ∅ᴹ ⊆ᴹ A :=
-  fun u h => (empty_mem u h).elim
+theorem empty_subset (A : Class) : ∅ᴹ ⊆ᴹ A :=
+  fun u h => (not_mem_empty u h).elim
 
-theorem subclass_classV (A : Class) : A ⊆ᴹ 𝐕ᴹ :=
-  fun u h => (classV_mem u).mpr (mem_isSet h)
+theorem subset_univ (A : Class) : A ⊆ᴹ 𝐕ᴹ :=
+  fun u h => (mem_univ_iff u).mpr (isSet_of_mem h)
 
-theorem subclass_binunion_left (A B : Class) : A ⊆ᴹ A ∪ᴹ B :=
-  fun _ h => (binunion_mem' (mem_isSet h)).mpr (Or.inl h)
+theorem subset_union_left (A B : Class) : A ⊆ᴹ A ∪ᴹ B :=
+  fun _ h => (mem_union_iff' (isSet_of_mem h)).mpr (Or.inl h)
 
-theorem subclass_binunion_right (A B : Class) : B ⊆ᴹ A ∪ᴹ B :=
-  fun _ h => (binunion_mem' (mem_isSet h)).mpr (Or.inr h)
+theorem subset_union_right (A B : Class) : B ⊆ᴹ A ∪ᴹ B :=
+  fun _ h => (mem_union_iff' (isSet_of_mem h)).mpr (Or.inr h)
 
-theorem bininter_subclass_left (A B : Class) : A ∩ᴹ B ⊆ᴹ A :=
-  fun _ h => ((bininter_mem' (mem_isSet h)).mp h).1
+theorem inter_subset_left (A B : Class) : A ∩ᴹ B ⊆ᴹ A :=
+  fun _ h => ((mem_inter_iff' (isSet_of_mem h)).mp h).1
 
-theorem bininter_subclass_right (A B : Class) : A ∩ᴹ B ⊆ᴹ B :=
-  fun _ h => ((bininter_mem' (mem_isSet h)).mp h).2
+theorem inter_subset_right (A B : Class) : A ∩ᴹ B ⊆ᴹ B :=
+  fun _ h => ((mem_inter_iff' (isSet_of_mem h)).mp h).2
 
 -- ─ Unión binaria — álgebra ────────────────────────────────────────────────
 
-theorem binunion_comm (A B : Class) : A ∪ᴹ B = B ∪ᴹ A := by
+theorem union_comm (A B : Class) : A ∪ᴹ B = B ∪ᴹ A := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu]; exact Or.comm
+  simp only [mem_union_iff' hu]; exact Or.comm
 
-theorem binunion_assoc (A B C : Class) : (A ∪ᴹ B) ∪ᴹ C = A ∪ᴹ (B ∪ᴹ C) := by
+theorem union_assoc (A B C : Class) : (A ∪ᴹ B) ∪ᴹ C = A ∪ᴹ (B ∪ᴹ C) := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu]; exact or_assoc
+  simp only [mem_union_iff' hu]; exact or_assoc
 
-theorem binunion_self (A : Class) : A ∪ᴹ A = A := by
+theorem union_self (A : Class) : A ∪ᴹ A = A := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu]; exact or_self_iff
+  simp only [mem_union_iff' hu]; exact or_self_iff
 
-theorem binunion_empty_right (A : Class) : A ∪ᴹ ∅ᴹ = A := by
+theorem union_empty (A : Class) : A ∪ᴹ ∅ᴹ = A := by
   apply MK_Ext; intro u hu
-  simp [binunion_mem' hu, empty_mem_iff]
+  simp [mem_union_iff' hu, mem_empty_iff]
 
-theorem binunion_empty_left (A : Class) : ∅ᴹ ∪ᴹ A = A := by
-  rw [binunion_comm]; exact binunion_empty_right A
+theorem empty_union (A : Class) : ∅ᴹ ∪ᴹ A = A := by
+  rw [union_comm]; exact union_empty A
 
-theorem binunion_classV_right (A : Class) : A ∪ᴹ 𝐕ᴹ = 𝐕ᴹ := by
+theorem union_univ (A : Class) : A ∪ᴹ 𝐕ᴹ = 𝐕ᴹ := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu, classV_mem]
-  exact ⟨fun h => h.elim mem_isSet id, Or.inr⟩
+  simp only [mem_union_iff' hu, mem_univ_iff]
+  exact ⟨fun h => h.elim isSet_of_mem id, Or.inr⟩
 
-theorem binunion_classV_left (A : Class) : 𝐕ᴹ ∪ᴹ A = 𝐕ᴹ := by
-  rw [binunion_comm]; exact binunion_classV_right A
+theorem univ_union (A : Class) : 𝐕ᴹ ∪ᴹ A = 𝐕ᴹ := by
+  rw [union_comm]; exact union_univ A
 
 -- ─ Intersección binaria — álgebra ─────────────────────────────────────────
 
-theorem bininter_comm (A B : Class) : A ∩ᴹ B = B ∩ᴹ A := by
+theorem inter_comm (A B : Class) : A ∩ᴹ B = B ∩ᴹ A := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu]; exact And.comm
+  simp only [mem_inter_iff' hu]; exact And.comm
 
-theorem bininter_assoc (A B C : Class) : (A ∩ᴹ B) ∩ᴹ C = A ∩ᴹ (B ∩ᴹ C) := by
+theorem inter_assoc (A B C : Class) : (A ∩ᴹ B) ∩ᴹ C = A ∩ᴹ (B ∩ᴹ C) := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu]; exact and_assoc
+  simp only [mem_inter_iff' hu]; exact and_assoc
 
-theorem bininter_self (A : Class) : A ∩ᴹ A = A := by
+theorem inter_self (A : Class) : A ∩ᴹ A = A := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu]; exact and_self_iff
+  simp only [mem_inter_iff' hu]; exact and_self_iff
 
-theorem bininter_empty_right (A : Class) : A ∩ᴹ ∅ᴹ = ∅ᴹ := by
+theorem inter_empty (A : Class) : A ∩ᴹ ∅ᴹ = ∅ᴹ := by
   apply MK_Ext; intro u hu
-  simp [bininter_mem' hu, empty_mem_iff]
+  simp [mem_inter_iff' hu, mem_empty_iff]
 
-theorem bininter_empty_left (A : Class) : ∅ᴹ ∩ᴹ A = ∅ᴹ := by
-  rw [bininter_comm]; exact bininter_empty_right A
+theorem empty_inter (A : Class) : ∅ᴹ ∩ᴹ A = ∅ᴹ := by
+  rw [inter_comm]; exact inter_empty A
 
-theorem bininter_classV_right (A : Class) : A ∩ᴹ 𝐕ᴹ = A := by
+theorem inter_univ (A : Class) : A ∩ᴹ 𝐕ᴹ = A := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu, classV_mem]
-  exact ⟨fun ⟨h, _⟩ => h, fun h => ⟨h, mem_isSet h⟩⟩
+  simp only [mem_inter_iff' hu, mem_univ_iff]
+  exact ⟨fun ⟨h, _⟩ => h, fun h => ⟨h, isSet_of_mem h⟩⟩
 
-theorem bininter_classV_left (A : Class) : 𝐕ᴹ ∩ᴹ A = A := by
-  rw [bininter_comm]; exact bininter_classV_right A
+theorem univ_inter (A : Class) : 𝐕ᴹ ∩ᴹ A = A := by
+  rw [inter_comm]; exact inter_univ A
 
 -- ─ Distributividad ────────────────────────────────────────────────────────
 
-theorem binunion_bininter_distrib (A B C : Class) :
+theorem union_inter_distrib_left (A B C : Class) :
     A ∪ᴹ (B ∩ᴹ C) = (A ∪ᴹ B) ∩ᴹ (A ∪ᴹ C) := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu, bininter_mem' hu]
+  simp only [mem_union_iff' hu, mem_inter_iff' hu]
   exact ⟨fun h => h.elim (fun ha => ⟨Or.inl ha, Or.inl ha⟩)
                           (fun ⟨hb, hc⟩ => ⟨Or.inr hb, Or.inr hc⟩),
          fun ⟨h1, h2⟩ => h1.elim Or.inl (fun hb => h2.elim Or.inl
                           (fun hc => Or.inr ⟨hb, hc⟩))⟩
 
-theorem bininter_binunion_distrib (A B C : Class) :
+theorem inter_union_distrib_left (A B C : Class) :
     A ∩ᴹ (B ∪ᴹ C) = (A ∩ᴹ B) ∪ᴹ (A ∩ᴹ C) := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu, binunion_mem' hu]
+  simp only [mem_inter_iff' hu, mem_union_iff' hu]
   exact ⟨fun ⟨ha, h⟩ => h.elim (fun hb => Or.inl ⟨ha, hb⟩)
                                  (fun hc => Or.inr ⟨ha, hc⟩),
          fun h => h.elim (fun ⟨ha, hb⟩ => ⟨ha, Or.inl hb⟩)
@@ -706,30 +706,30 @@ theorem bininter_binunion_distrib (A B C : Class) :
 
 theorem compl_compl (A : Class) : ∁ᴹ (∁ᴹ A) = A := by
   apply MK_Ext; intro u hu
-  rw [classcompl_mem' hu, classcompl_mem' hu]
+  rw [mem_compl_iff' hu, mem_compl_iff' hu]
   exact ⟨Classical.byContradiction, fun ha hna => hna ha⟩
 
-theorem binunion_compl_self (A : Class) : A ∪ᴹ ∁ᴹ A = 𝐕ᴹ := by
+theorem union_compl_self (A : Class) : A ∪ᴹ ∁ᴹ A = 𝐕ᴹ := by
   apply MK_Ext; intro u hu
-  simp only [binunion_mem' hu, classcompl_mem' hu, classV_mem]
+  simp only [mem_union_iff' hu, mem_compl_iff' hu, mem_univ_iff]
   exact ⟨fun _ => hu, fun _ => Classical.em (u ∈ᴹ A)⟩
 
-theorem bininter_compl_self (A : Class) : A ∩ᴹ ∁ᴹ A = ∅ᴹ := by
+theorem inter_compl_self (A : Class) : A ∩ᴹ ∁ᴹ A = ∅ᴹ := by
   apply MK_Ext; intro u hu
-  simp only [bininter_mem' hu, classcompl_mem' hu, empty_mem_iff]
+  simp only [mem_inter_iff' hu, mem_compl_iff' hu, mem_empty_iff]
   exact ⟨fun ⟨h, hn⟩ => hn h, False.elim⟩
 
 -- ─ Leyes de De Morgan ─────────────────────────────────────────────────────
 
-theorem compl_binunion (A B : Class) : ∁ᴹ (A ∪ᴹ B) = ∁ᴹ A ∩ᴹ ∁ᴹ B := by
+theorem compl_union (A B : Class) : ∁ᴹ (A ∪ᴹ B) = ∁ᴹ A ∩ᴹ ∁ᴹ B := by
   apply MK_Ext; intro u hu
-  simp only [classcompl_mem' hu, binunion_mem' hu, bininter_mem' hu]
+  simp only [mem_compl_iff' hu, mem_union_iff' hu, mem_inter_iff' hu]
   exact ⟨fun h => ⟨fun ha => h (Or.inl ha), fun hb => h (Or.inr hb)⟩,
          fun ⟨ha, hb⟩ h => h.elim ha hb⟩
 
-theorem compl_bininter (A B : Class) : ∁ᴹ (A ∩ᴹ B) = ∁ᴹ A ∪ᴹ ∁ᴹ B := by
+theorem compl_inter (A B : Class) : ∁ᴹ (A ∩ᴹ B) = ∁ᴹ A ∪ᴹ ∁ᴹ B := by
   apply MK_Ext; intro u hu
-  simp only [classcompl_mem' hu, bininter_mem' hu, binunion_mem' hu]
+  simp only [mem_compl_iff' hu, mem_inter_iff' hu, mem_union_iff' hu]
   exact ⟨fun h => Classical.byContradiction (fun hn =>
            h ⟨Classical.byContradiction (fun ha => hn (Or.inl ha)),
               Classical.byContradiction (fun hb => hn (Or.inr hb))⟩),
@@ -737,9 +737,9 @@ theorem compl_bininter (A B : Class) : ∁ᴹ (A ∩ᴹ B) = ∁ᴹ A ∪ᴹ ∁
 
 -- ─ Diferencia = intersección con complemento ──────────────────────────────
 
-theorem classdiff_eq_inter_compl (A B : Class) : A ∖ᴹ B = A ∩ᴹ ∁ᴹ B := by
+theorem sdiff_eq_inter_compl (A B : Class) : A ∖ᴹ B = A ∩ᴹ ∁ᴹ B := by
   apply MK_Ext; intro u hu
-  rw [classdiff_mem' hu, bininter_mem' hu, classcompl_mem' hu]
+  rw [mem_sdiff_iff' hu, mem_inter_iff' hu, mem_compl_iff' hu]
 
 -- ── A9. Global Choice ─────────────────────────────────────────────────────
 -- There exists a class C that selects an element from every non-empty set.
@@ -828,7 +828,7 @@ axiom MK_CAC :
     · Relaciones funcionales: IsClassFun F → ∀ x, IsSet x → ∃¹ y, ⟪x, y⟫ ∈ᴹ F
 -/
 
-theorem unique_empty :
+theorem empty_unique :
     ∃¹ E : Class, (∀ u : Class, u ∉ᴹ E) ∧ IsSet E := by
   -- Existencia: MK_Inf garantiza un set vacío e.
   obtain ⟨_, _, ⟨e, he_set, he_empty, _⟩, _⟩ := MK_Inf
@@ -839,7 +839,7 @@ theorem unique_empty :
   intro u _
   exact ⟨fun h => absurd h (hE' u), fun h => absurd h (he_empty u)⟩
 
-theorem classful_unique_image (F x : Class) (hF : IsClassFun F) (hx : IsSet x)
+theorem unique_image (F x : Class) (hF : IsClassFun F) (hx : IsSet x)
     (hu : ∃ y, IsSet y ∧ ⟪x, y⟫ ∈ᴹ F) : ∃¹ y : Class, IsSet y ∧ ⟪x, y⟫ ∈ᴹ F := by
   obtain ⟨y, hy_set, hy⟩ := hu
   refine ExistsUnique.intro y ⟨hy_set, hy⟩ ?_

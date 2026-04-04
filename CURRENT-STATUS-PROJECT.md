@@ -10,7 +10,7 @@
 | Metric | Value |
 |--------|-------|
 | Total modules | 2 |
-| Modules with 0 sorry | 1 / 2 |
+| Modules with 0 sorry | 2 / 2 |
 | Total theorems proven | ~60 |
 | Total definitions | ~5 |
 | Total notations | ~3 |
@@ -25,7 +25,7 @@
 | Module | Theorems | Definitions | Sorry | Status |
 |--------|----------|-------------|-------|--------|
 | `Prelim.lean` | 7 | 1 | 0 | 🧊 Frozen (Locked) |
-| `MKplusCACAxioms.lean` | ~55 | 3 | 1 | 🔄 In progress (Locked) |
+| `MKplusCACAxioms.lean` | ~55 | 3 | 0 | ✅ Complete (Locked) |
 
 *Status codes*: ✅ Complete · 🧊 Frozen · 🔶 Partial · 🔄 In progress · ❌ Pending
 
@@ -35,13 +35,14 @@
 
 - Project renamed and migrated to the latest `lean4-project-template` structure.
 - `Prelim.lean` and `MKplusCACAxioms.lean` successfully ported and compiling.
+- Resolved the pending sorry in `MKplusCACAxioms.lean`.
 
 ---
 
 ## Pending Work
 
-- [ ] Resolver el `sorry` pendiente en `MKplusCACAxioms.lean`.
-- [ ] Auditar y refactorizar nombres según `NAMING-CONVENTIONS.md` (Phase 3).
+- [x] Resolver el `sorry` pendiente en `MKplusCACAxioms.lean`.
+- [x] Auditar y refactorizar nombres según `NAMING-CONVENTIONS.md` (Phase 3).
 - [ ] Desarrollar los siguientes módulos lógicos derivados de los axiomas.
 
 ---
@@ -61,8 +62,8 @@ MKplusCAC/
 | Phase | Description | Status |
 |-------|-------------|--------|
 | Phase 1: Foundations | `Prelim.lean` + core definitions | ✅ Complete |
-| Phase 2: Core Axioms | `MKplusCACAxioms.lean` | 🔄 In progress |
-| Phase 3: Naming Migration | Adopt Mathlib naming conventions | ❌ Pending |
+| Phase 2: Core Axioms | `MKplusCACAxioms.lean` | ✅ Complete |
+| Phase 3: Naming Migration | Adopt Mathlib naming conventions | ✅ Complete |
 | Phase 4: First Derived Modules | Core theorems and constructions | ❌ Pending |
 
 > See [NEXT-STEPS.md](NEXT-STEPS.md) for detailed phase planning.

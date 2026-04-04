@@ -69,6 +69,6 @@
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 1 | Foundations | ✅ Complete |
-| 2 | Core Axioms | 🔄 In progress |
-| 3 | Naming Migration | ❌ Pending |
+| 2 | Core Axioms | ✅ Complete |
+| 3 | Naming Migration | ✅ Complete |
 | 4 | First Derived Modules | ❌ Pending |
