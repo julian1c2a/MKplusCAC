@@ -3,6 +3,9 @@
 *.olean
 *.ilean
 *.trace
+.claude/
+.github/
+.vscode/
 
 # OS
 .DS_Store
