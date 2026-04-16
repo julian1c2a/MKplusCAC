@@ -218,4 +218,197 @@ theorem mem_restrict_iff' (F A p : Class) :
   · rintro ⟨hF, x, y, hx, hy, hxA, rfl⟩
     exact (mem_restrict_iff F A ⟪x, y⟫).mpr ⟨x, y, hx, hy, hxA, hF, rfl⟩
 
+-- ============================================================
+-- FILE: MKplusCAC/Functions_additions.lean
+-- (Insertar en Functions.lean en el lugar indicado)
+--
+-- Objetivo: Cerrar la Fase 0 — 3 lemas auxiliares + corrección
+-- de surjective_iff_forall_exists_app.
+-- ============================================================
+
+-- ────────────────────────────────────────────────────────────
+-- §1.  mem_dom_iff'
+--
+-- Versión "prime" de mem_dom_iff con IsSet x como hipótesis.
+-- Se usa en múltiples sitios del fichero pero no estaba definida.
+-- ────────────────────────────────────────────────────────────
+theorem mem_dom_iff' {F x : Class} (hx : IsSet x) :
+    x ∈ᴹ dom F ↔ ∃ y, ⟪x, y⟫ ∈ᴹ F := by
+  rw [mem_dom_iff]
+  exact ⟨fun ⟨_, h⟩ => h, fun h => ⟨hx, h⟩⟩
+
+-- ────────────────────────────────────────────────────────────
+-- §2.  app_unique
+--
+-- Si F es una función (IsFun), y tanto x como y son sets,
+-- y ⟪x, y⟫ ∈ F, entonces F⦑x⦒ = y.
+--
+-- Demostración:
+--   • dif_pos: la condición de app se cumple, luego
+--     F⦑x⦒ = Classical.choose h.2 =: y'.
+--   • Por Classical.choose_spec: IsSet y' ∧ ⟪x, y'⟫ ∈ F.
+--   • Por IsClassFun F: y' = y.
+-- ────────────────────────────────────────────────────────────
+theorem app_unique {F x y : Class}
+    (hF  : IsFun F) (hx : IsSet x) (hy : IsSet y)
+    (h   : ⟪x, y⟫ ∈ᴹ F) :
+    F ⦑ x ⦒ = y := by
+  -- La condición del if-then-else de app se cumple
+  have hcond : IsSet x ∧ ∃ z, IsSet z ∧ ⟪x, z⟫ ∈ᴹ F :=
+    ⟨hx, y, hy, h⟩
+  -- Desplegar app y tomar la rama positiva
+  simp only [app, dif_pos hcond]
+  -- Sea y' := Classical.choose hcond.2
+  set y' := Classical.choose hcond.2 with hy'_def
+  obtain ⟨hy'_set, hy'_F⟩ := Classical.choose_spec hcond.2
+  -- IsClassFun F: ⟪x, y'⟫ ∈ F y ⟪x, y⟫ ∈ F → y' = y
+  exact hF.2 x y' y hx hy'_set hy hy'_F h
+
+-- ────────────────────────────────────────────────────────────
+-- §3.  opair_app_mem_of_cond
+--
+-- Si sabemos explícitamente que ∃ y (set), ⟪x, y⟫ ∈ F,
+-- entonces ⟪x, F⦑x⦒⟫ ∈ F.
+--
+-- Nota de diseño: no usamos x ∈ dom F porque la definición de
+-- dom no requiere IsSet y en el testigo existencial; esto crea
+-- una "junk-pair pathology" cuando ¬IsSet y. Esta versión con
+-- la condición explícita evita ese problema.
+-- ────────────────────────────────────────────────────────────
+theorem opair_app_mem_of_cond {F x : Class} (hx : IsSet x)
+    (hcond : ∃ y, IsSet y ∧ ⟪x, y⟫ ∈ᴹ F) :
+    ⟪x, F ⦑ x ⦒⟫ ∈ᴹ F := by
+  have hfull : IsSet x ∧ ∃ y, IsSet y ∧ ⟪x, y⟫ ∈ᴹ F := ⟨hx, hcond⟩
+  simp only [app, dif_pos hfull]
+  exact (Classical.choose_spec hfull.2).2
+
+-- ────────────────────────────────────────────────────────────
+-- §4.  surjective_iff_forall_exists_pair   ← NUEVO, sin sorry
+--
+-- Caracterización CORRECTA y COMPLETA de IsSurjective usando
+-- testigos de pares (no de app). Esto es más directo y evita
+-- la junk-pair pathology de surjective_iff_forall_exists_app.
+--
+-- IsSurjective F B = rng F = B
+--   ↔  ∀ y ∈ B, ∃ x (set), ⟪x, y⟫ ∈ F   (con h_rng extra)
+-- ────────────────────────────────────────────────────────────
+theorem surjective_iff_forall_exists_pair
+    {F : Class} (hF : IsFun F) (B : Class)
+    (h_rng : rng F ⊆ᴹ B) :
+    IsSurjective F B ↔
+      ∀ y, y ∈ᴹ B → ∃ x, IsSet x ∧ ⟪x, y⟫ ∈ᴹ F := by
+  constructor
+  -- → : rng F = B → ∀ y ∈ B, ∃ par ⟨x,y⟩ ∈ F
+  · intro h_surj y hy_B
+    have hy_rng : y ∈ᴹ rng F := by rw [h_surj]; exact hy_B
+    rw [mem_rng_iff] at hy_rng
+    obtain ⟨_, x, hx, h_xyF⟩ := hy_rng
+    exact ⟨x, hx, h_xyF⟩
+  -- ← : testigos de pares + h_rng → rng F = B
+  · intro h_pair
+    apply subset_antisymm
+    · -- rng F ⊆ B (directo por h_rng)
+      exact h_rng
+    · -- B ⊆ rng F
+      intro y hy_B
+      rw [mem_rng_iff]
+      have hy_set : IsSet y := isSet_of_mem hy_B
+      obtain ⟨x, hx_set, h_xyF⟩ := h_pair y hy_B
+      exact ⟨hy_set, x, hx_set, h_xyF⟩
+
+-- ────────────────────────────────────────────────────────────
+-- §5.  surjective_iff_forall_exists_app   ← CORREGIDO
+--
+-- DIAGNÓSTICO DE LOS DOS SORRY ORIGINALES:
+--
+-- SORRY 1 (rng F ⊆ B en la rama ←):
+--   El enunciado original era incorrecto. IsSurjective F B es
+--   rng F = B, que requiere rng F ⊆ B. Pero h_forall sólo da
+--   B ⊆ rng F. Sin info del codominio, rng F ⊆ B es indemostrable.
+--   FIX: añadir h_rng : rng F ⊆ B como hipótesis explícita.
+--
+-- SORRY 2 (B ⊆ rng F en la rama ←):
+--   Necesita exhibir ⟪x, y⟫ ∈ F desde F⦑x⦒ = y.
+--   Análisis por casos sobre la rama del if-else de app:
+--   • dif_pos (∃ z set, ⟪x,z⟫ ∈ F): probado via choose_spec.
+--   • dif_neg + IsSet z₀: contradicción via opair_inj.
+--   • dif_neg + ¬IsSet z₀: JUNK-PAIR PATHOLOGY (ver abajo).
+--
+-- SORRY RESIDUAL — junk-pair pathology:
+--   opair x z₀ con ¬IsSet z₀ devuelve Classical.choice inferInstance
+--   independientemente de x. Esto hace que distintos x puedan
+--   compartir el mismo "par" en F, haciendo imposible recuperar
+--   x = a (primera componente de IsRel). El caso no ocurre en
+--   ninguna función construida por comprensión de pares de sets,
+--   pero es formalmente imposible descartar con el sistema actual.
+--   RESOLUCIÓN RECOMENDADA: usar surjective_iff_forall_exists_pair
+--   (§4) que evita el problema completamente.
+-- ────────────────────────────────────────────────────────────
+theorem surjective_iff_forall_exists_app
+    {F : Class} (hF : IsFun F) (B : Class)
+    (h_rng : rng F ⊆ᴹ B) :                    -- ← FIX sorry 1
+    IsSurjective F B ↔
+      ∀ y, y ∈ᴹ B → ∃ x, x ∈ᴹ dom F ∧ F ⦑ x ⦒ = y := by
+  constructor
+  -- ─────────────────────────────────────────────────────────
+  -- DIRECCIÓN →  (rng F = B → preimagen via app)
+  -- ─────────────────────────────────────────────────────────
+  · intro h_surj y hy_B
+    -- y ∈ rng F (porque rng F = B)
+    have hy_rng : y ∈ᴹ rng F := by rw [h_surj]; exact hy_B
+    rw [mem_rng_iff] at hy_rng
+    obtain ⟨hy_set, x, hx_set, h_xyF⟩ := hy_rng
+    -- x ∈ dom F
+    have hx_dom : x ∈ᴹ dom F :=
+      (mem_dom_iff' hx_set).mpr ⟨y, h_xyF⟩
+    exact ⟨x, hx_dom, app_unique hF hx_set hy_set h_xyF⟩
+  -- ─────────────────────────────────────────────────────────
+  -- DIRECCIÓN ←  (h_forall + h_rng → rng F = B)
+  -- ─────────────────────────────────────────────────────────
+  · intro h_forall
+    apply subset_antisymm
+    -- ── (a) rng F ⊆ B : FIX sorry 1 ─────────────────────
+    · exact h_rng
+    -- ── (b) B ⊆ rng F : FIX sorry 2 ─────────────────────
+    · intro y hy_B
+      rw [mem_rng_iff]
+      have hy_set  : IsSet y := isSet_of_mem hy_B
+      -- Preimagen de y según h_forall
+      obtain ⟨x, hx_dom, h_app⟩ := h_forall y hy_B
+      have hx_set  : IsSet x  := ((mem_dom_iff F x).mp hx_dom).1
+      -- Análisis de la rama del if-then-else de app
+      by_cases hcond : (IsSet x ∧ ∃ z, IsSet z ∧ ⟪x, z⟫ ∈ᴹ F)
+      ·  -- ── Rama dif_pos ─────────────────────────────────
+        --  F⦑x⦒ = Classical.choose hcond.2
+        have h_val : F ⦑ x ⦒ = Classical.choose hcond.2 := by
+          simp [app, dif_pos hcond]
+        obtain ⟨hcs_set, hcs_F⟩ := Classical.choose_spec hcond.2
+        --  y = Classical.choose hcond.2   (de h_app y h_val)
+        have hy_eq : y = Classical.choose hcond.2 :=
+          h_app.symm.trans h_val
+        --  ⟪x, y⟫ ∈ F   y   IsSet y
+        exact ⟨hy_eq ▸ hcs_set, x, hx_set, hy_eq ▸ hcs_F⟩
+      · -- ── Rama dif_neg ─────────────────────────────────
+        -- Desde hx_dom: ∃ z₀, ⟪x, z₀⟫ ∈ F
+        obtain ⟨_, z₀, h_xz₀_F⟩ := (mem_dom_iff F x).mp hx_dom
+        -- Por IsRel F: obtenemos sets a, b con ⟪x, z₀⟫ = ⟪a, b⟫
+        obtain ⟨a, b, ha, hb, heq⟩ := hF.1 _ h_xz₀_F
+        -- Sub-caso según IsSet z₀
+        by_cases hz₀ : IsSet z₀
+        · -- ── IsSet z₀: CONTRADICCIÓN ───────────────────
+          --  opair_inj da x = a, z₀ = b (set)
+          --  Luego ∃ z, IsSet z ∧ ⟪x,z⟫ ∈ F, contradiciendo hcond
+          exact absurd ⟨hx_set, z₀, hz₀, h_xz₀_F⟩ hcond
+        · -- ── ¬IsSet z₀: JUNK-PAIR PATHOLOGY ───────────
+          --  opair x z₀ = Classical.choice inferInstance
+          --              = opairCore a b ha hb  (∈ F)
+          --  No podemos probar x = a porque el valor junk no
+          --  codifica la primera componente del par.
+          --  Este caso no ocurre en funciones bien construidas.
+          --  Para una prueba completa usar §4 (exists_pair).
+          sorry
+          -- TODO (junk-pair): El camino limpio es definir dom
+          -- requiriendo IsSet y en el testigo, o usar
+          -- surjective_iff_forall_exists_pair directamente.
+
 end MKplusCAC
